@@ -928,4 +928,157 @@
         }
 
         // Format business ads
-       
+        function formatBusinessAd(ad, isBuying, isSelling, isTrading) {
+            let formatted = ad;
+            
+            // Standardize business names
+            formatted = formatted.replace(/gun store|weapon store/gi, "Ammunition Store");
+            formatted = formatted.replace(/strip club/gi, "Bar");
+            formatted = formatted.replace(/barber/gi, "Hair salon");
+            formatted = formatted.replace(/charging station/gi, "Electric station");
+            formatted = formatted.replace(/drug lab/gi, "Burger shop");
+            formatted = formatted.replace(/personal business/gi, "private business");
+            
+            // Extract business number if mentioned
+            const numberMatch = ad.match(/(?:store|shop|station|company)\s*(?:no|number|#)?\s*(\d+)/i);
+            const number = numberMatch ? numberMatch[1] : null;
+            
+            // Add number symbol if number is present
+            if (number) {
+                formatted = formatted.replace(new RegExp(`(store|shop|station|company)\\s*(?:no|number|#)?\\s*${number}`, 'i'), `$1 №${number}`);
+            }
+            
+            return formatted;
+        }
+
+        // Format work ads
+        function formatWorkAd(ad, isBuying, isSelling) {
+            let formatted = ad;
+            
+            // Standardize terms
+            formatted = formatted.replace(/level/gi, "years experience");
+            formatted = formatted.replace(/exotic dancers|stripers/gi, "Professional dancer");
+            
+            // Extract construction site number if mentioned
+            const siteMatch = ad.match(/construction site\s*(?:no|number|#)?\s*(\d+)/i);
+            const siteNumber = siteMatch ? siteMatch[1] : null;
+            
+            // Add number symbol if site number is present
+            if (siteNumber) {
+                formatted = formatted.replace(new RegExp(`construction site\\s*(?:no|number|#)?\\s*${siteNumber}`, 'i'), `construction site №${siteNumber}`);
+            }
+            
+            return formatted;
+        }
+
+        // Format dating ads
+        function formatDatingAd(ad) {
+            let formatted = ad;
+            
+            // Standardize format
+            formatted = formatted.replace(/looking to buy|looking to purchase/gi, "Buying");
+            formatted = formatted.replace(/looking for/gi, "Looking for");
+            
+            // Capitalize names (simple implementation)
+            const nameMatch = formatted.match(/looking for\s+([a-z]+\s+[a-z]+)/i);
+            if (nameMatch) {
+                const name = nameMatch[1];
+                const capitalizedName = name.split(' ').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                ).join(' ');
+                formatted = formatted.replace(name, capitalizedName);
+            }
+            
+            return formatted;
+        }
+
+        // Format discount ads
+        function formatDiscountAd(ad) {
+            // For discount ads, we mostly keep the template as is
+            return ad;
+        }
+
+        // Format service ads
+        function formatServiceAd(ad) {
+            // For service ads, we mostly keep the template as is
+            return ad;
+        }
+
+        // Format other ads
+        function formatOtherAd(ad, isBuying, isSelling, isTrading) {
+            let formatted = ad;
+            
+            // Standardize terms
+            formatted = formatted.replace(/crates|cases/gi, "containers");
+            formatted = formatted.replace(/spray cans|spray balloons/gi, "paint cans");
+            formatted = formatted.replace(/extras/gi, "of type");
+            formatted = formatted.replace(/scarf/gi, "mask");
+            formatted = formatted.replace(/pumpkin|cabbage|pineapple|mandarin/gi, "fruits, vegetables or seeds");
+            formatted = formatted.replace(/unique 6 rims/gi, "luminous wheels of type 6");
+            
+            return formatted;
+        }
+
+        // Apply general formatting rules
+        function applyGeneralFormatting(ad, isBuying, isSelling, isTrading, isRenting) {
+            let formatted = ad.trim();
+            
+            // Capitalize first letter
+            formatted = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+            
+            // Ensure proper ending punctuation
+            if (!/[.!?]$/.test(formatted)) {
+                formatted += ".";
+            }
+            
+            // Replace price/budget indicators
+            if (isBuying) {
+                formatted = formatted.replace(/\b(price|cost)\s*:/gi, "Budget:");
+                if (!formatted.includes("Budget:")) {
+                    formatted = formatted.replace(/(buying[^.]*)\./i, "$1. Budget: Negotiable.");
+                }
+            } else if (isSelling || isTrading) {
+                formatted = formatted.replace(/\b(budget)\s*:/gi, "Price:");
+                if (!formatted.includes("Price:") && isSelling) {
+                    formatted = formatted.replace(/(selling[^.]*)\./i, "$1. Price: Negotiable.");
+                }
+            } else if (isRenting) {
+                if (formatted.includes("Renting out")) {
+                    formatted = formatted.replace(/\b(price|cost)\s*:/gi, "Rent:");
+                } else {
+                    formatted = formatted.replace(/\b(price|cost)\s*:/gi, "Budget:");
+                }
+            }
+            
+            // Format price values
+            formatted = formatPriceValues(formatted);
+            
+            // Replace common abbreviations
+            formatted = formatted.replace(/\bnego\b/gi, "Negotiable");
+            formatted = formatted.replace(/\bmil\b/gi, "Million");
+            
+            return formatted;
+        }
+
+        // Format price values in the ad
+        function formatPriceValues(text) {
+            // Format prices like 2.5m, 20k, etc.
+            return text.replace(/(?:price|budget|rent)\s*:\s*\$?(\d+(?:\.\d+)?)\s*(mil|million|m|k)(?:\s|\.|$)/gi, (match, amount, unit) => {
+                if (unit.toLowerCase() === 'k') {
+                    const formattedAmount = (parseFloat(amount) * 1000).toLocaleString();
+                    return match.replace(`${amount}${unit}`, `$${formattedAmount}`);
+                } else {
+                    return match.replace(`${amount}${unit}`, `$${amount} Million`);
+                }
+            }).replace(/\$?(\d+(?:\.\d+)?)\s*(mil|million|m|k)(?:\s|\.|$)/gi, (match, amount, unit) => {
+                if (unit.toLowerCase() === 'k') {
+                    const formattedAmount = (parseFloat(amount) * 1000).toLocaleString();
+                    return match.replace(`${amount}${unit}`, `$${formattedAmount}`);
+                } else {
+                    return match.replace(`${amount}${unit}`, `$${amount} Million`);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
