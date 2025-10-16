@@ -15,6 +15,7 @@
             --success-color: #28a745;
             --error-color: #dc3545;
             --warning-color: #ffc107;
+            --info-color: #17a2b8;
         }
 
         [data-theme="dark"] {
@@ -27,13 +28,14 @@
             --success-color: #34c759;
             --error-color: #ff3b30;
             --warning-color: #ffcc00;
+            --info-color: #5ac8fa;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            transition: background-color 0.3s, color 0.3s;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
 
         body {
@@ -150,6 +152,7 @@
             display: flex;
             gap: 10px;
             margin-top: 10px;
+            flex-wrap: wrap;
         }
 
         button {
@@ -179,6 +182,15 @@
             background-color: #5a6268;
         }
 
+        .copy-btn {
+            background-color: var(--info-color);
+            color: white;
+        }
+
+        .copy-btn:hover {
+            background-color: #138496;
+        }
+
         .manual-edit-btn {
             background-color: var(--warning-color);
             color: #000;
@@ -205,10 +217,12 @@
             padding: 15px;
             background-color: var(--container-bg);
             cursor: pointer;
+            transition: transform 0.2s;
         }
 
         .example-card:hover {
-            background-color: var(--border-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .example-raw {
@@ -279,6 +293,71 @@
             color: var(--secondary-color);
             font-size: 0.9rem;
         }
+
+        .validation-indicator {
+            margin-top: 5px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .validation-ok {
+            color: var(--success-color);
+        }
+
+        .validation-error {
+            color: var(--error-color);
+        }
+
+        .validation-icon {
+            margin-right: 5px;
+        }
+
+        .search-container {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-container input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--container-bg);
+            color: var(--text-color);
+        }
+
+        .search-container button {
+            padding: 8px 15px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: var(--success-color);
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background-color: var(--error-color);
+        }
+
+        .notification.warning {
+            background-color: var(--warning-color);
+            color: #000;
+        }
     </style>
 </head>
 <body>
@@ -292,6 +371,7 @@
             <div class="input-section">
                 <h2>Raw Ad Input</h2>
                 <textarea id="rawAdInput" placeholder="Paste your raw ad here..."></textarea>
+                <div class="validation-indicator" id="validationIndicator"></div>
                 <div class="button-container">
                     <button class="format-btn" id="formatBtn">Format Ad</button>
                     <button class="clear-btn" id="clearBtn">Clear</button>
@@ -304,6 +384,9 @@
                 <div class="output-box" id="formattedOutput">Your formatted ad will appear here...</div>
                 <div class="category-box" id="categoryOutput"></div>
                 <div class="rejection-reason" id="rejectionReason"></div>
+                <div class="button-container">
+                    <button class="copy-btn" id="copyBtn">Copy to Clipboard</button>
+                </div>
             </div>
         </div>
 
@@ -336,11 +419,11 @@
                     </select>
                 </div>
                 <div class="manual-control">
-                    <label for="manualPrice">Price/Budget</label>
+                    <label for="manualPrice">Price/Budget/Rent</label>
                     <input type="text" id="manualPrice" placeholder="e.g. $2.5 Million">
                 </div>
                 <div class="manual-control">
-                    <label for="manualItem">Item/Vehicle</label>
+                    <label for="manualItem">Item/Vehicle/Business</label>
                     <input type="text" id="manualItem" placeholder="Item name">
                 </div>
             </div>
@@ -348,6 +431,11 @@
                 <button class="format-btn" id="applyManualBtn">Apply Changes</button>
                 <button class="clear-btn" id="cancelManualBtn">Cancel</button>
             </div>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search rules, items, vehicles...">
+            <button class="format-btn" id="searchBtn">Search</button>
         </div>
 
         <div class="examples-section">
@@ -362,6 +450,8 @@
             <p>LifeInvader Internal Policy EN-03 | Last updated: 28-04-2025</p>
         </footer>
     </div>
+
+    <div class="notification" id="notification">Copied to clipboard!</div>
 
     <script>
         // Theme toggle functionality
@@ -381,9 +471,11 @@
         // Format button functionality
         const formatBtn = document.getElementById('formatBtn');
         const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
         const manualEditBtn = document.getElementById('manualEditBtn');
         const applyManualBtn = document.getElementById('applyManualBtn');
         const cancelManualBtn = document.getElementById('cancelManualBtn');
+        const searchBtn = document.getElementById('searchBtn');
         const rawAdInput = document.getElementById('rawAdInput');
         const formattedOutput = document.getElementById('formattedOutput');
         const categoryOutput = document.getElementById('categoryOutput');
@@ -394,6 +486,9 @@
         const manualCategory = document.getElementById('manualCategory');
         const manualPrice = document.getElementById('manualPrice');
         const manualItem = document.getElementById('manualItem');
+        const searchInput = document.getElementById('searchInput');
+        const validationIndicator = document.getElementById('validationIndicator');
+        const notification = document.getElementById('notification');
 
         // Vehicle database
         const vehicleDatabase = [
@@ -421,6 +516,25 @@
             "Grand RP collection pants", "Mikachu hoodie", "The West Pace jacket", "Pans sneakers",
             "Niki Groundporce One new collection shoes", "RGB neon shoes", "Ground Mordan 4 Retro Laser 30th shoes",
             "white tied scarf mask", "black Lui Vi desert scarf mask", "luminous head bag mask"
+        ];
+
+        // Business types
+        const businessTypes = [
+            "Ammunition Store", "Bar", "Car wash", "Chip tuning", "Clothing shop", "Cowshed",
+            "Electric station", "Farm", "Flower shop", "Freight train", "Gas station", "Grand Elite",
+            "Hair salon", "Oil Well", "Parking", "Pet Shop", "Plantation", "Car sharing", "State object",
+            "Service station", "24/7 Store", "Tattoo studio", "Taxi company", "ATM business", "Juice shop",
+            "Burger shop", "Jewelry store", "Fight club"
+        ];
+
+        // Illegal items
+        const illegalItems = [
+            'firearm', 'ammunition', 'bulletproof', 'armor plate', 'weed', 'cannabis', 'cocaine', 'drug',
+            'ems mask', 'medical mask', 'covid mask', 'scanner', 'radar', 'balaclava', 'rope', 'head bag',
+            'usb with virus', 'lock pick', 'crowbar', 'troll', 'bandit mask', 'animal skin', 'satellite dish',
+            'barricade', 'anti-radar', 'engine block', 'air horn', 'grand coin', 'battlepass', 'hype body',
+            'gang', 'nationality', 'sale of people', 'sexual', 'birthday', 'playboy family', 'license',
+            'mega mall', 'gang hq', 'black market', 'lspd', 'fib', 'sahp', 'ems', 'government', 'ghetto'
         ];
 
         // Example ads data
@@ -591,6 +705,18 @@
             formattedAd: ""
         };
 
+        // Show notification
+        function showNotification(message, type = "success") {
+            notification.textContent = message;
+            notification.className = "notification";
+            notification.classList.add(type);
+            notification.classList.add("show");
+            
+            setTimeout(() => {
+                notification.classList.remove("show");
+            }, 3000);
+        }
+
         // Populate examples grid
         exampleAds.forEach(example => {
             const exampleCard = document.createElement('div');
@@ -664,6 +790,22 @@
             categoryOutput.className = "category-box";
             rejectionReason.textContent = "";
             manualEditSection.style.display = "none";
+            validationIndicator.textContent = "";
+            validationIndicator.className = "validation-indicator";
+        }
+
+        // Copy to clipboard
+        function copyToClipboard() {
+            const text = formattedOutput.textContent;
+            if (text && text !== "Your formatted ad will appear here...") {
+                navigator.clipboard.writeText(text).then(() => {
+                    showNotification("Copied to clipboard!");
+                }).catch(err => {
+                    showNotification("Failed to copy to clipboard", "error");
+                });
+            } else {
+                showNotification("Nothing to copy", "warning");
+            }
         }
 
         // Manual edit function
@@ -714,12 +856,91 @@
             manualEditSection.style.display = "none";
         }
 
-        // Event listeners
-        formatBtn.addEventListener('click', formatAd);
-        clearBtn.addEventListener('click', clearAll);
-        manualEditBtn.addEventListener('click', toggleManualEdit);
-        applyManualBtn.addEventListener('click', applyManualChanges);
-        cancelManualBtn.addEventListener('click', cancelManualEdit);
+        // Search functionality
+        function searchRules() {
+            const query = searchInput.value.toLowerCase().trim();
+            if (!query) return;
+            
+            // Search in examples
+            const matchingExamples = exampleAds.filter(example => 
+                example.raw.toLowerCase().includes(query) || 
+                example.formatted.toLowerCase().includes(query) ||
+                example.category.toLowerCase().includes(query)
+            );
+            
+            if (matchingExamples.length > 0) {
+                // Populate examples with search results
+                examplesGrid.innerHTML = "";
+                matchingExamples.forEach(example => {
+                    const exampleCard = document.createElement('div');
+                    exampleCard.className = 'example-card';
+                    
+                    const rawText = document.createElement('div');
+                    rawText.className = 'example-raw';
+                    rawText.textContent = `Raw: ${example.raw}`;
+                    
+                    const formattedText = document.createElement('div');
+                    formattedText.className = 'example-formatted';
+                    formattedText.textContent = `Formatted: ${example.formatted}`;
+                    
+                    const categoryText = document.createElement('div');
+                    categoryText.className = 'example-category';
+                    categoryText.textContent = `Category: ${example.category}`;
+                    
+                    exampleCard.appendChild(rawText);
+                    exampleCard.appendChild(formattedText);
+                    exampleCard.appendChild(categoryText);
+                    
+                    exampleCard.addEventListener('click', () => {
+                        rawAdInput.value = example.raw;
+                        formatAd();
+                    });
+                    
+                    examplesGrid.appendChild(exampleCard);
+                });
+                
+                showNotification(`Found ${matchingExamples.length} matching examples`, "success");
+            } else {
+                showNotification("No matching examples found", "warning");
+            }
+        }
+
+        // Real-time validation
+        function validateInput() {
+            const text = rawAdInput.value.toLowerCase();
+            validationIndicator.textContent = "";
+            validationIndicator.className = "validation-indicator";
+            
+            if (!text) return;
+            
+            // Check for illegal items
+            for (const item of illegalItems) {
+                if (text.includes(item)) {
+                    validationIndicator.textContent = "⚠️ Contains illegal/prohibited content";
+                    validationIndicator.className = "validation-indicator validation-error";
+                    return;
+                }
+            }
+            
+            // Check for multiple vehicles
+            const vehicleCount = (text.match(/(?:car|vehicle|motorcycle|bike|boat)/gi) || []).length;
+            if (vehicleCount > 1 && !text.includes('trading')) {
+                validationIndicator.textContent = "⚠️ Multiple vehicles detected";
+                validationIndicator.className = "validation-indicator validation-error";
+                return;
+            }
+            
+            // Check for multiple properties
+            const propertyCount = (text.match(/(?:house|apartment|penthouse|mansion)/gi) || []).length;
+            if (propertyCount > 1) {
+                validationIndicator.textContent = "⚠️ Multiple properties detected";
+                validationIndicator.className = "validation-indicator validation-error";
+                return;
+            }
+            
+            validationIndicator.textContent = "✓ Valid ad format";
+            validationIndicator.className = "validation-indicator validation-ok";
+        }
 
         // Process ad according to LifeInvader policy
         function processAd(rawAd) {
@@ -727,15 +948,6 @@
             const lowerAd = rawAd.toLowerCase();
             
             // Check for illegal items first
-            const illegalItems = [
-                'firearm', 'ammunition', 'bulletproof', 'armor plate', 'weed', 'cannabis', 'cocaine', 'drug',
-                'ems mask', 'medical mask', 'covid mask', 'scanner', 'radar', 'balaclava', 'rope', 'head bag',
-                'usb with virus', 'lock pick', 'crowbar', 'troll', 'bandit mask', 'animal skin', 'satellite dish',
-                'barricade', 'anti-radar', 'engine block', 'air horn', 'grand coin', 'battlepass', 'hype body',
-                'gang', 'nationality', 'sale of people', 'sexual', 'birthday', 'playboy family', 'license',
-                'mega mall', 'gang hq', 'black market', 'lspd', 'fib', 'sahp', 'ems', 'government', 'ghetto'
-            ];
-            
             for (const item of illegalItems) {
                 if (lowerAd.includes(item)) {
                     return {
@@ -934,18 +1146,19 @@
             // Standardize business names
             formatted = formatted.replace(/gun store|weapon store/gi, "Ammunition Store");
             formatted = formatted.replace(/strip club/gi, "Bar");
-            formatted = formatted.replace(/barber/gi, "Hair salon");
+            formatted = formatted.replace(/binco|suburban/gi, "Clothing shop");
             formatted = formatted.replace(/charging station/gi, "Electric station");
+            formatted = formatted.replace(/barber/gi, "Hair salon");
             formatted = formatted.replace(/drug lab/gi, "Burger shop");
             formatted = formatted.replace(/personal business/gi, "private business");
             
             // Extract business number if mentioned
-            const numberMatch = ad.match(/(?:store|shop|station|company)\s*(?:no|number|#)?\s*(\d+)/i);
+            const numberMatch = ad.match(/(?:store|shop|station|business)\s*(?:no|number|#)?\s*(\d+)/i);
             const number = numberMatch ? numberMatch[1] : null;
             
             // Add number symbol if number is present
             if (number) {
-                formatted = formatted.replace(new RegExp(`(store|shop|station|company)\\s*(?:no|number|#)?\\s*${number}`, 'i'), `$1 №${number}`);
+                formatted = formatted.replace(new RegExp(`(store|shop|station|business)\\s*(?:no|number|#)?\\s*${number}`, 'i'), `$1 №${number}`);
             }
             
             return formatted;
@@ -957,15 +1170,23 @@
             
             // Standardize terms
             formatted = formatted.replace(/level/gi, "years experience");
-            formatted = formatted.replace(/exotic dancers|stripers/gi, "Professional dancer");
+            formatted = formatted.replace(/exotic dancer|striper/gi, "Professional dancer");
             
             // Extract construction site number if mentioned
             const siteMatch = ad.match(/construction site\s*(?:no|number|#)?\s*(\d+)/i);
             const siteNumber = siteMatch ? siteMatch[1] : null;
             
-            // Add number symbol if site number is present
+            // Add site details if number is present
             if (siteNumber) {
-                formatted = formatted.replace(new RegExp(`construction site\\s*(?:no|number|#)?\\s*${siteNumber}`, 'i'), `construction site №${siteNumber}`);
+                const sites = {
+                    "1": "on Vespucci Boulevard",
+                    "2": "on Calais Avenue",
+                    "3": "in Pillbox Hill"
+                };
+                
+                if (sites[siteNumber]) {
+                    formatted = formatted.replace(/construction site.*?(?=\.|$)/i, `construction site №${siteNumber}, ${sites[siteNumber]}`);
+                }
             }
             
             return formatted;
@@ -975,12 +1196,8 @@
         function formatDatingAd(ad) {
             let formatted = ad;
             
-            // Standardize format
-            formatted = formatted.replace(/looking to buy|looking to purchase/gi, "Buying");
-            formatted = formatted.replace(/looking for/gi, "Looking for");
-            
-            // Capitalize names (simple implementation)
-            const nameMatch = formatted.match(/looking for\s+([a-z]+\s+[a-z]+)/i);
+            // Capitalize names
+            const nameMatch = ad.match(/looking for\s+([a-z]+\s+[a-z]+)/i);
             if (nameMatch) {
                 const name = nameMatch[1];
                 const capitalizedName = name.split(' ').map(word => 
@@ -994,14 +1211,22 @@
 
         // Format discount ads
         function formatDiscountAd(ad) {
-            // For discount ads, we mostly keep the template as is
-            return ad;
+            let formatted = ad;
+            
+            // Ensure percentage format is correct
+            formatted = formatted.replace(/(\d+)%\s*(?:discount|off)/gi, "$1% discount");
+            
+            return formatted;
         }
 
         // Format service ads
         function formatServiceAd(ad) {
-            // For service ads, we mostly keep the template as is
-            return ad;
+            let formatted = ad;
+            
+            // Ensure proper capitalization
+            formatted = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+            
+            return formatted;
         }
 
         // Format other ads
@@ -1021,64 +1246,45 @@
 
         // Apply general formatting rules
         function applyGeneralFormatting(ad, isBuying, isSelling, isTrading, isRenting) {
-            let formatted = ad.trim();
+            let formatted = ad;
             
             // Capitalize first letter
             formatted = formatted.charAt(0).toUpperCase() + formatted.slice(1);
             
             // Ensure proper ending punctuation
-            if (!/[.!?]$/.test(formatted)) {
-                formatted += ".";
+            if (!formatted.endsWith('.') && !formatted.endsWith('!') && !formatted.endsWith('?')) {
+                formatted += '.';
             }
             
-            // Replace price/budget indicators
-            if (isBuying) {
-                formatted = formatted.replace(/\b(price|cost)\s*:/gi, "Budget:");
-                if (!formatted.includes("Budget:")) {
-                    formatted = formatted.replace(/(buying[^.]*)\./i, "$1. Budget: Negotiable.");
-                }
-            } else if (isSelling || isTrading) {
-                formatted = formatted.replace(/\b(budget)\s*:/gi, "Price:");
-                if (!formatted.includes("Price:") && isSelling) {
-                    formatted = formatted.replace(/(selling[^.]*)\./i, "$1. Price: Negotiable.");
-                }
-            } else if (isRenting) {
-                if (formatted.includes("Renting out")) {
-                    formatted = formatted.replace(/\b(price|cost)\s*:/gi, "Rent:");
-                } else {
-                    formatted = formatted.replace(/\b(price|cost)\s*:/gi, "Budget:");
-                }
-            }
+            // Standardize price format
+            formatted = formatted.replace(/(price|budget|rent):\s*(\d)/gi, '$1: $2');
             
-            // Format price values
-            formatted = formatPriceValues(formatted);
-            
-            // Replace common abbreviations
-            formatted = formatted.replace(/\bnego\b/gi, "Negotiable");
-            formatted = formatted.replace(/\bmil\b/gi, "Million");
+            // Remove trailing periods after numbers
+            formatted = formatted.replace(/(\$\d[\d,.]*)\s*\.(\s|$)/g, '$1$2');
             
             return formatted;
         }
 
-        // Format price values in the ad
-        function formatPriceValues(text) {
-            // Format prices like 2.5m, 20k, etc.
-            return text.replace(/(?:price|budget|rent)\s*:\s*\$?(\d+(?:\.\d+)?)\s*(mil|million|m|k)(?:\s|\.|$)/gi, (match, amount, unit) => {
-                if (unit.toLowerCase() === 'k') {
-                    const formattedAmount = (parseFloat(amount) * 1000).toLocaleString();
-                    return match.replace(`${amount}${unit}`, `$${formattedAmount}`);
-                } else {
-                    return match.replace(`${amount}${unit}`, `$${amount} Million`);
-                }
-            }).replace(/\$?(\d+(?:\.\d+)?)\s*(mil|million|m|k)(?:\s|\.|$)/gi, (match, amount, unit) => {
-                if (unit.toLowerCase() === 'k') {
-                    const formattedAmount = (parseFloat(amount) * 1000).toLocaleString();
-                    return match.replace(`${amount}${unit}`, `$${formattedAmount}`);
-                } else {
-                    return match.replace(`${amount}${unit}`, `$${amount} Million`);
-                }
-            });
-        }
+        // Event listeners
+        formatBtn.addEventListener('click', formatAd);
+        clearBtn.addEventListener('click', clearAll);
+        copyBtn.addEventListener('click', copyToClipboard);
+        manualEditBtn.addEventListener('click', toggleManualEdit);
+        applyManualBtn.addEventListener('click', applyManualChanges);
+        cancelManualBtn.addEventListener('click', cancelManualEdit);
+        searchBtn.addEventListener('click', searchRules);
+        rawAdInput.addEventListener('input', validateInput);
+
+        // Allow Enter key to trigger search
+        searchInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                searchRules();
+            }
+        });
+
+        // Initialize with a sample ad
+        rawAdInput.value = "selling annis rx7 with max tuning, visual upgrades and insurance. price 15 million";
+        formatAd();
     </script>
 </body>
 </html>
