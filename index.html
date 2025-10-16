@@ -179,6 +179,15 @@
             background-color: #5a6268;
         }
 
+        .manual-edit-btn {
+            background-color: var(--warning-color);
+            color: #000;
+        }
+
+        .manual-edit-btn:hover {
+            background-color: #e0a800;
+        }
+
         .examples-section {
             margin-top: 30px;
         }
@@ -224,6 +233,44 @@
             margin-top: 10px;
         }
 
+        .manual-edit-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--container-bg);
+        }
+
+        .manual-edit-section h3 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .manual-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .manual-control {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .manual-control label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .manual-control input, .manual-control select {
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--container-bg);
+            color: var(--text-color);
+        }
+
         footer {
             margin-top: 30px;
             text-align: center;
@@ -248,6 +295,7 @@
                 <div class="button-container">
                     <button class="format-btn" id="formatBtn">Format Ad</button>
                     <button class="clear-btn" id="clearBtn">Clear</button>
+                    <button class="manual-edit-btn" id="manualEditBtn">Manual Edit</button>
                 </div>
             </div>
 
@@ -256,6 +304,49 @@
                 <div class="output-box" id="formattedOutput">Your formatted ad will appear here...</div>
                 <div class="category-box" id="categoryOutput"></div>
                 <div class="rejection-reason" id="rejectionReason"></div>
+            </div>
+        </div>
+
+        <div class="manual-edit-section" id="manualEditSection" style="display: none;">
+            <h3>Manual Edit Controls</h3>
+            <div class="manual-controls">
+                <div class="manual-control">
+                    <label for="manualPurpose">Purpose</label>
+                    <select id="manualPurpose">
+                        <option value="Selling">Selling</option>
+                        <option value="Buying">Buying</option>
+                        <option value="Trading">Trading</option>
+                        <option value="Selling or trading">Selling or trading</option>
+                        <option value="Looking for">Looking for</option>
+                        <option value="Hiring">Hiring</option>
+                        <option value="Renting out">Renting out</option>
+                    </select>
+                </div>
+                <div class="manual-control">
+                    <label for="manualCategory">Category</label>
+                    <select id="manualCategory">
+                        <option value="Real Estate">Real Estate</option>
+                        <option value="Auto">Auto</option>
+                        <option value="Business">Business</option>
+                        <option value="Work">Work</option>
+                        <option value="Dating">Dating</option>
+                        <option value="Services">Services</option>
+                        <option value="Discounts">Discounts</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="manual-control">
+                    <label for="manualPrice">Price/Budget</label>
+                    <input type="text" id="manualPrice" placeholder="e.g. $2.5 Million">
+                </div>
+                <div class="manual-control">
+                    <label for="manualItem">Item/Vehicle</label>
+                    <input type="text" id="manualItem" placeholder="Item name">
+                </div>
+            </div>
+            <div class="button-container">
+                <button class="format-btn" id="applyManualBtn">Apply Changes</button>
+                <button class="clear-btn" id="cancelManualBtn">Cancel</button>
             </div>
         </div>
 
@@ -290,11 +381,19 @@
         // Format button functionality
         const formatBtn = document.getElementById('formatBtn');
         const clearBtn = document.getElementById('clearBtn');
+        const manualEditBtn = document.getElementById('manualEditBtn');
+        const applyManualBtn = document.getElementById('applyManualBtn');
+        const cancelManualBtn = document.getElementById('cancelManualBtn');
         const rawAdInput = document.getElementById('rawAdInput');
         const formattedOutput = document.getElementById('formattedOutput');
         const categoryOutput = document.getElementById('categoryOutput');
         const rejectionReason = document.getElementById('rejectionReason');
         const examplesGrid = document.getElementById('examplesGrid');
+        const manualEditSection = document.getElementById('manualEditSection');
+        const manualPurpose = document.getElementById('manualPurpose');
+        const manualCategory = document.getElementById('manualCategory');
+        const manualPrice = document.getElementById('manualPrice');
+        const manualItem = document.getElementById('manualItem');
 
         // Vehicle database
         const vehicleDatabase = [
@@ -483,6 +582,15 @@
             }
         ];
 
+        // Current ad data for manual editing
+        let currentAdData = {
+            purpose: "",
+            category: "",
+            price: "",
+            item: "",
+            formattedAd: ""
+        };
+
         // Populate examples grid
         exampleAds.forEach(example => {
             const exampleCard = document.createElement('div');
@@ -527,6 +635,15 @@
             // Process the ad
             const result = processAd(rawText);
             
+            // Store current ad data for manual editing
+            currentAdData = {
+                purpose: result.purpose || "",
+                category: result.category || "",
+                price: result.price || "",
+                item: result.item || "",
+                formattedAd: result.formattedAd || ""
+            };
+            
             // Display results
             formattedOutput.textContent = result.formattedAd;
             categoryOutput.textContent = `Category: ${result.category}`;
@@ -546,11 +663,63 @@
             categoryOutput.textContent = "";
             categoryOutput.className = "category-box";
             rejectionReason.textContent = "";
+            manualEditSection.style.display = "none";
+        }
+
+        // Manual edit function
+        function toggleManualEdit() {
+            if (manualEditSection.style.display === "none") {
+                // Populate manual edit fields with current ad data
+                manualPurpose.value = currentAdData.purpose || "Selling";
+                manualCategory.value = currentAdData.category || "Other";
+                manualPrice.value = currentAdData.price || "";
+                manualItem.value = currentAdData.item || "";
+                
+                manualEditSection.style.display = "block";
+            } else {
+                manualEditSection.style.display = "none";
+            }
+        }
+
+        // Apply manual changes
+        function applyManualChanges() {
+            const purpose = manualPurpose.value;
+            const category = manualCategory.value;
+            const price = manualPrice.value;
+            const item = manualItem.value;
+            
+            // Build the ad based on manual inputs
+            let formattedAd = "";
+            
+            if (purpose === "Looking for" || purpose === "Hiring") {
+                formattedAd = `${purpose} ${item}.`;
+            } else if (purpose === "Renting out") {
+                formattedAd = `${purpose} ${item}. Rent: ${price || "Negotiable"}.`;
+            } else {
+                formattedAd = `${purpose} ${item}. ${purpose.includes("Buying") ? "Budget" : "Price"}: ${price || "Negotiable"}.`;
+            }
+            
+            // Update the output
+            formattedOutput.textContent = formattedAd;
+            categoryOutput.textContent = `Category: ${category}`;
+            categoryOutput.className = `category-box category-${category.toLowerCase().replace(' ', '-')}`;
+            rejectionReason.textContent = "";
+            
+            // Hide manual edit section
+            manualEditSection.style.display = "none";
+        }
+
+        // Cancel manual edit
+        function cancelManualEdit() {
+            manualEditSection.style.display = "none";
         }
 
         // Event listeners
         formatBtn.addEventListener('click', formatAd);
         clearBtn.addEventListener('click', clearAll);
+        manualEditBtn.addEventListener('click', toggleManualEdit);
+        applyManualBtn.addEventListener('click', applyManualChanges);
+        cancelManualBtn.addEventListener('click', cancelManualEdit);
 
         // Process ad according to LifeInvader policy
         function processAd(rawAd) {
@@ -581,33 +750,58 @@
             let formattedAd = "";
             let category = "Other";
             let rejectionReason = "";
+            let purpose = "";
+            let price = "";
+            let item = "";
             
             // Check for buying/selling/trading keywords
             const isBuying = lowerAd.includes('buy') || lowerAd.includes('purchas');
             const isSelling = lowerAd.includes('sell');
             const isTrading = lowerAd.includes('trad');
             const isRenting = lowerAd.includes('rent');
+            const isLooking = lowerAd.includes('look') && lowerAd.includes('for');
+            const isHiring = lowerAd.includes('hir');
+            
+            // Extract price/budget information
+            const priceMatch = rawAd.match(/(\d+(?:\.\d+)?)\s*(?:mil|million|m|k| thousand)/i);
+            if (priceMatch) {
+                const amount = priceMatch[1];
+                const unit = priceMatch[0].toLowerCase().includes('k') ? 'k' : 'm';
+                
+                if (unit === 'k') {
+                    price = `$${(parseFloat(amount) * 1000).toLocaleString()}`;
+                } else {
+                    price = `$${amount} Million`;
+                }
+            }
             
             // Determine category and format accordingly
             if (lowerAd.includes('house') || lowerAd.includes('apartment') || lowerAd.includes('penthouse') || lowerAd.includes('mansion')) {
                 category = "Real Estate";
                 formattedAd = formatRealEstateAd(rawAd, isBuying, isSelling, isRenting);
+                purpose = isBuying ? "Buying" : isSelling ? "Selling" : isRenting ? "Renting out" : "";
             } else if (lowerAd.includes('car') || lowerAd.includes('vehicle') || lowerAd.includes('motorcycle') || 
                       lowerAd.includes('bike') || lowerAd.includes('boat') || lowerAd.includes('helicopter') || 
                       lowerAd.includes('plane')) {
                 category = "Auto";
                 formattedAd = formatAutoAd(rawAd, isBuying, isSelling, isTrading);
+                purpose = isBuying ? "Buying" : isSelling ? "Selling" : isTrading ? "Trading" : "";
+                item = extractItem(rawAd, vehicleDatabase);
             } else if (lowerAd.includes('business') || lowerAd.includes('biz') || lowerAd.includes('store') || 
                       lowerAd.includes('shop') || lowerAd.includes('station') || lowerAd.includes('company')) {
                 category = "Business";
                 formattedAd = formatBusinessAd(rawAd, isBuying, isSelling, isTrading);
+                purpose = isBuying ? "Buying" : isSelling ? "Selling" : isTrading ? "Trading" : "";
             } else if (lowerAd.includes('work') || lowerAd.includes('job') || lowerAd.includes('hire') || 
                       lowerAd.includes('salary') || lowerAd.includes('construction')) {
                 category = "Work";
                 formattedAd = formatWorkAd(rawAd, isBuying, isSelling);
-            } else if (lowerAd.includes('look') && (lowerAd.includes('for') || lowerAd.includes('dating'))) {
+                purpose = isHiring ? "Hiring" : "Looking for work";
+            } else if (isLooking && (lowerAd.includes('for') || lowerAd.includes('dating'))) {
                 category = "Dating";
                 formattedAd = formatDatingAd(rawAd);
+                purpose = "Looking for";
+                item = extractName(rawAd);
             } else if (lowerAd.includes('discount') || lowerAd.includes('off') || lowerAd.includes('%')) {
                 category = "Discounts";
                 formattedAd = formatDiscountAd(rawAd);
@@ -617,6 +811,8 @@
             } else {
                 category = "Other";
                 formattedAd = formatOtherAd(rawAd, isBuying, isSelling, isTrading);
+                purpose = isBuying ? "Buying" : isSelling ? "Selling" : isTrading ? "Trading" : "";
+                item = extractItem(rawAd, clothingDatabase);
             }
             
             // Apply general formatting rules
@@ -625,8 +821,33 @@
             return {
                 formattedAd,
                 category,
-                rejectionReason
+                rejectionReason,
+                purpose,
+                price,
+                item
             };
+        }
+
+        // Extract item name from ad
+        function extractItem(ad, database) {
+            for (const item of database) {
+                if (ad.toLowerCase().includes(item.toLowerCase())) {
+                    return item;
+                }
+            }
+            return "";
+        }
+
+        // Extract name from dating ad
+        function extractName(ad) {
+            const nameMatch = ad.match(/looking for\s+([a-z]+\s+[a-z]+)/i);
+            if (nameMatch) {
+                const name = nameMatch[1];
+                return name.split(' ').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                ).join(' ');
+            }
+            return "";
         }
 
         // Format real estate ads
@@ -707,157 +928,4 @@
         }
 
         // Format business ads
-        function formatBusinessAd(ad, isBuying, isSelling, isTrading) {
-            let formatted = ad;
-            
-            // Standardize business names
-            formatted = formatted.replace(/gun store|weapon store/gi, "Ammunition Store");
-            formatted = formatted.replace(/strip club/gi, "Bar");
-            formatted = formatted.replace(/barber/gi, "Hair salon");
-            formatted = formatted.replace(/charging station/gi, "Electric station");
-            formatted = formatted.replace(/drug lab/gi, "Burger shop");
-            formatted = formatted.replace(/personal business/gi, "private business");
-            
-            // Extract business number if mentioned
-            const numberMatch = ad.match(/(?:store|shop|station|company)\s*(?:no|number|#)?\s*(\d+)/i);
-            const number = numberMatch ? numberMatch[1] : null;
-            
-            // Add number symbol if number is present
-            if (number) {
-                formatted = formatted.replace(new RegExp(`(store|shop|station|company)\\s*(?:no|number|#)?\\s*${number}`, 'i'), `$1 №${number}`);
-            }
-            
-            return formatted;
-        }
-
-        // Format work ads
-        function formatWorkAd(ad, isBuying, isSelling) {
-            let formatted = ad;
-            
-            // Standardize terms
-            formatted = formatted.replace(/level/gi, "years experience");
-            formatted = formatted.replace(/exotic dancers|stripers/gi, "Professional dancer");
-            
-            // Extract construction site number if mentioned
-            const siteMatch = ad.match(/construction site\s*(?:no|number|#)?\s*(\d+)/i);
-            const siteNumber = siteMatch ? siteMatch[1] : null;
-            
-            // Add number symbol if site number is present
-            if (siteNumber) {
-                formatted = formatted.replace(new RegExp(`construction site\\s*(?:no|number|#)?\\s*${siteNumber}`, 'i'), `construction site №${siteNumber}`);
-            }
-            
-            return formatted;
-        }
-
-        // Format dating ads
-        function formatDatingAd(ad) {
-            let formatted = ad;
-            
-            // Standardize format
-            formatted = formatted.replace(/looking to buy|looking to purchase/gi, "Buying");
-            formatted = formatted.replace(/looking for/gi, "Looking for");
-            
-            // Capitalize names (simple implementation)
-            const nameMatch = formatted.match(/looking for\s+([a-z]+\s+[a-z]+)/i);
-            if (nameMatch) {
-                const name = nameMatch[1];
-                const capitalizedName = name.split(' ').map(word => 
-                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-                ).join(' ');
-                formatted = formatted.replace(name, capitalizedName);
-            }
-            
-            return formatted;
-        }
-
-        // Format discount ads
-        function formatDiscountAd(ad) {
-            // For discount ads, we mostly keep the template as is
-            return ad;
-        }
-
-        // Format service ads
-        function formatServiceAd(ad) {
-            // For service ads, we mostly keep the template as is
-            return ad;
-        }
-
-        // Format other ads
-        function formatOtherAd(ad, isBuying, isSelling, isTrading) {
-            let formatted = ad;
-            
-            // Standardize terms
-            formatted = formatted.replace(/crates|cases/gi, "containers");
-            formatted = formatted.replace(/spray cans|spray balloons/gi, "paint cans");
-            formatted = formatted.replace(/extras/gi, "of type");
-            formatted = formatted.replace(/scarf/gi, "mask");
-            formatted = formatted.replace(/pumpkin|cabbage|pineapple|mandarin/gi, "fruits, vegetables or seeds");
-            formatted = formatted.replace(/unique 6 rims/gi, "luminous wheels of type 6");
-            
-            return formatted;
-        }
-
-        // Apply general formatting rules
-        function applyGeneralFormatting(ad, isBuying, isSelling, isTrading, isRenting) {
-            let formatted = ad.trim();
-            
-            // Capitalize first letter
-            formatted = formatted.charAt(0).toUpperCase() + formatted.slice(1);
-            
-            // Ensure proper ending punctuation
-            if (!/[.!?]$/.test(formatted)) {
-                formatted += ".";
-            }
-            
-            // Replace price/budget indicators
-            if (isBuying) {
-                formatted = formatted.replace(/\b(price|cost)\s*:/gi, "Budget:");
-                if (!formatted.includes("Budget:")) {
-                    formatted = formatted.replace(/(buying[^.]*)\./i, "$1. Budget: Negotiable.");
-                }
-            } else if (isSelling || isTrading) {
-                formatted = formatted.replace(/\b(budget)\s*:/gi, "Price:");
-                if (!formatted.includes("Price:") && isSelling) {
-                    formatted = formatted.replace(/(selling[^.]*)\./i, "$1. Price: Negotiable.");
-                }
-            } else if (isRenting) {
-                if (formatted.includes("Renting out")) {
-                    formatted = formatted.replace(/\b(price|cost)\s*:/gi, "Rent:");
-                } else {
-                    formatted = formatted.replace(/\b(price|cost)\s*:/gi, "Budget:");
-                }
-            }
-            
-            // Format price values
-            formatted = formatPriceValues(formatted);
-            
-            // Replace common abbreviations
-            formatted = formatted.replace(/\bnego\b/gi, "Negotiable");
-            formatted = formatted.replace(/\bmil\b/gi, "Million");
-            
-            return formatted;
-        }
-
-        // Format price values in the ad
-        function formatPriceValues(text) {
-            // Format prices like 2.5m, 20k, etc.
-            return text.replace(/(?:price|budget|rent)\s*:\s*\$?(\d+(?:\.\d+)?)\s*(mil|million|m|k)(?:\s|\.|$)/gi, (match, amount, unit) => {
-                if (unit.toLowerCase() === 'k') {
-                    const formattedAmount = (parseFloat(amount) * 1000).toLocaleString();
-                    return match.replace(`${amount}${unit}`, `$${formattedAmount}`);
-                } else {
-                    return match.replace(`${amount}${unit}`, `$${amount} Million`);
-                }
-            }).replace(/\$?(\d+(?:\.\d+)?)\s*(mil|million|m|k)(?:\s|\.|$)/gi, (match, amount, unit) => {
-                if (unit.toLowerCase() === 'k') {
-                    const formattedAmount = (parseFloat(amount) * 1000).toLocaleString();
-                    return match.replace(`${amount}${unit}`, `$${formattedAmount}`);
-                } else {
-                    return match.replace(`${amount}${unit}`, `$${amount} Million`);
-                }
-            });
-        }
-    </script>
-</body>
-</html>
+       
