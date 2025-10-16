@@ -305,7 +305,7 @@
             "Annis Silvia (S15)", "Annis Skyline GT-R (R34)", "Annis RX-7 (FD)", "Benefactor-MG C63 (W205)",
             "Benefactor-Benz 600SEL (W140)", "Benefactor-Maybach Pullman", "Grotti Italia (F458)",
             "Karin Supra A80", "Karin Tundra 2021", "Truffade Chiron", "Obey R8", "Enus Phantom",
-            "Progen 675 LT", "Swift Deluxe", "Frogger", "SuperVolito Carbon", "SeaShark"
+            "Progen 675 LT", "Swift Deluxe", "Frogger", "SuperVolito Carbon", "SeaShark", "Monowheel"
         ];
 
         // Non-sellable vehicles
@@ -326,6 +326,11 @@
 
         // Example ads data
         const exampleAds = [
+            {
+                raw: "selling monowheel budget 2.5m",
+                formatted: 'Selling "Monowheel". Price: $2.5 Million.',
+                category: "Auto"
+            },
             {
                 raw: "I want to but a penthouse. My budget is 20 mil",
                 formatted: "Buying Casino penthouse. Budget: $20 Million.",
@@ -583,23 +588,19 @@
             const isTrading = lowerAd.includes('trad');
             const isRenting = lowerAd.includes('rent');
             
-            // Extract price/budget if mentioned
-            let priceMatch = rawAd.match(/(\d+(?:\.\d+)?)\s*(?:mil|million|m|k| thousand)/i);
-            let price = priceMatch ? priceMatch[1] : null;
-            
             // Determine category and format accordingly
             if (lowerAd.includes('house') || lowerAd.includes('apartment') || lowerAd.includes('penthouse') || lowerAd.includes('mansion')) {
                 category = "Real Estate";
-                formattedAd = formatRealEstateAd(rawAd, isBuying, isSelling, isRenting, price);
+                formattedAd = formatRealEstateAd(rawAd, isBuying, isSelling, isRenting);
             } else if (lowerAd.includes('car') || lowerAd.includes('vehicle') || lowerAd.includes('motorcycle') || 
                       lowerAd.includes('bike') || lowerAd.includes('boat') || lowerAd.includes('helicopter') || 
                       lowerAd.includes('plane')) {
                 category = "Auto";
-                formattedAd = formatAutoAd(rawAd, isBuying, isSelling, isTrading, price);
+                formattedAd = formatAutoAd(rawAd, isBuying, isSelling, isTrading);
             } else if (lowerAd.includes('business') || lowerAd.includes('biz') || lowerAd.includes('store') || 
                       lowerAd.includes('shop') || lowerAd.includes('station') || lowerAd.includes('company')) {
                 category = "Business";
-                formattedAd = formatBusinessAd(rawAd, isBuying, isSelling, isTrading, price);
+                formattedAd = formatBusinessAd(rawAd, isBuying, isSelling, isTrading);
             } else if (lowerAd.includes('work') || lowerAd.includes('job') || lowerAd.includes('hire') || 
                       lowerAd.includes('salary') || lowerAd.includes('construction')) {
                 category = "Work";
@@ -615,7 +616,7 @@
                 formattedAd = formatServiceAd(rawAd);
             } else {
                 category = "Other";
-                formattedAd = formatOtherAd(rawAd, isBuying, isSelling, isTrading, price);
+                formattedAd = formatOtherAd(rawAd, isBuying, isSelling, isTrading);
             }
             
             // Apply general formatting rules
@@ -629,7 +630,7 @@
         }
 
         // Format real estate ads
-        function formatRealEstateAd(ad, isBuying, isSelling, isRenting, price) {
+        function formatRealEstateAd(ad, isBuying, isSelling, isRenting) {
             let formatted = ad;
             
             // Extract house number if mentioned
@@ -662,7 +663,7 @@
         }
 
         // Format auto ads
-        function formatAutoAd(ad, isBuying, isSelling, isTrading, price) {
+        function formatAutoAd(ad, isBuying, isSelling, isTrading) {
             let formatted = ad;
             
             // Extract vehicle name and put in quotes
@@ -706,7 +707,7 @@
         }
 
         // Format business ads
-        function formatBusinessAd(ad, isBuying, isSelling, isTrading, price) {
+        function formatBusinessAd(ad, isBuying, isSelling, isTrading) {
             let formatted = ad;
             
             // Standardize business names
@@ -783,7 +784,7 @@
         }
 
         // Format other ads
-        function formatOtherAd(ad, isBuying, isSelling, isTrading, price) {
+        function formatOtherAd(ad, isBuying, isSelling, isTrading) {
             let formatted = ad;
             
             // Standardize terms
@@ -829,30 +830,33 @@
             }
             
             // Format price values
-            formatted = formatted.replace(/(?:price|budget|rent)\s*:\s*\$?(\d+(?:\.\d+)?)\s*(?:mil|million|m)/gi, (match, p1) => {
-                return match.replace(`${p1}`, `$${p1} Million`);
-            });
-            
-            formatted = formatted.replace(/(?:price|budget|rent)\s*:\s*\$?(\d+(?:\.\d+)?)\s*k/gi, (match, p1) => {
-                const amount = parseFloat(p1) * 1000;
-                return match.replace(`${p1}k`, `$${amount.toLocaleString()}`);
-            });
-            
-            // Format standalone price mentions
-            formatted = formatted.replace(/\$?(\d+(?:\.\d+)?)\s*(?:mil|million|m)(?:\s|\.|$)/gi, (match, p1) => {
-                return match.replace(`${p1}`, `$${p1} Million`);
-            });
-            
-            formatted = formatted.replace(/\$?(\d+(?:\.\d+)?)\s*k(?:\s|\.|$)/gi, (match, p1) => {
-                const amount = parseFloat(p1) * 1000;
-                return match.replace(`${p1}k`, `$${amount.toLocaleString()}`);
-            });
+            formatted = formatPriceValues(formatted);
             
             // Replace common abbreviations
             formatted = formatted.replace(/\bnego\b/gi, "Negotiable");
             formatted = formatted.replace(/\bmil\b/gi, "Million");
             
             return formatted;
+        }
+
+        // Format price values in the ad
+        function formatPriceValues(text) {
+            // Format prices like 2.5m, 20k, etc.
+            return text.replace(/(?:price|budget|rent)\s*:\s*\$?(\d+(?:\.\d+)?)\s*(mil|million|m|k)(?:\s|\.|$)/gi, (match, amount, unit) => {
+                if (unit.toLowerCase() === 'k') {
+                    const formattedAmount = (parseFloat(amount) * 1000).toLocaleString();
+                    return match.replace(`${amount}${unit}`, `$${formattedAmount}`);
+                } else {
+                    return match.replace(`${amount}${unit}`, `$${amount} Million`);
+                }
+            }).replace(/\$?(\d+(?:\.\d+)?)\s*(mil|million|m|k)(?:\s|\.|$)/gi, (match, amount, unit) => {
+                if (unit.toLowerCase() === 'k') {
+                    const formattedAmount = (parseFloat(amount) * 1000).toLocaleString();
+                    return match.replace(`${amount}${unit}`, `$${formattedAmount}`);
+                } else {
+                    return match.replace(`${amount}${unit}`, `$${amount} Million`);
+                }
+            });
         }
     </script>
 </body>
