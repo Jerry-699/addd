@@ -195,6 +195,11 @@
             border-radius: 4px;
             padding: 15px;
             background-color: var(--container-bg);
+            cursor: pointer;
+        }
+
+        .example-card:hover {
+            background-color: var(--border-color);
         }
 
         .example-raw {
@@ -291,6 +296,34 @@
         const rejectionReason = document.getElementById('rejectionReason');
         const examplesGrid = document.getElementById('examplesGrid');
 
+        // Vehicle database
+        const vehicleDatabase = [
+            "Adder", "Baller", "Calico GTF", "Declasse Corvette C7", "Elegy Retro Custom", "F620", 
+            "Gallivanter Defender", "Hermes", "Imorgon", "Jackal", "Kamacho", "Lampadati Giulia GTA", 
+            "Mamba", "Nebula Turbo", "Oracle", "Panto", "Raiden", "Sabre Turbo", "T-20", 
+            "Ubermacht 760 (LI)", "V-STR", "Warrener", "X80 Proto", "Yosemite", "Z-Type", "9F",
+            "Annis Silvia (S15)", "Annis Skyline GT-R (R34)", "Annis RX-7 (FD)", "Benefactor-MG C63 (W205)",
+            "Benefactor-Benz 600SEL (W140)", "Benefactor-Maybach Pullman", "Grotti Italia (F458)",
+            "Karin Supra A80", "Karin Tundra 2021", "Truffade Chiron", "Obey R8", "Enus Phantom",
+            "Progen 675 LT", "Swift Deluxe", "Frogger", "SuperVolito Carbon", "SeaShark"
+        ];
+
+        // Non-sellable vehicles
+        const nonSellableVehicles = [
+            "Annis Concept 2021", "Brabus Rocket G900", "Bravado Charger Daytona", "Enus EXP 10",
+            "Genesis G90", "KMTA Optima", "Overflod Jesko 2020", "Pfister Cayenne", "Shelby Cobra Daytona",
+            "Truffade Centodieci", "Ubermacht M5 (F90)", "Vapid Focus RS", "Benefactor-MG G63 (6X6)"
+        ];
+
+        // Clothing database
+        const clothingDatabase = [
+            "Abibas pants", "Abibas Pezy Boost 700 V3 Alvah shoes", "Lui Vi pants", "Lui Vi full set",
+            "TRON full set", "TRON helmet", "Grand RP trousers", "Grand RP collection T-shirt",
+            "Grand RP collection pants", "Mikachu hoodie", "The West Pace jacket", "Pans sneakers",
+            "Niki Groundporce One new collection shoes", "RGB neon shoes", "Ground Mordan 4 Retro Laser 30th shoes",
+            "white tied scarf mask", "black Lui Vi desert scarf mask", "luminous head bag mask"
+        ];
+
         // Example ads data
         const exampleAds = [
             {
@@ -345,6 +378,103 @@
                 formatted: "Cannot promote parties at FIB.",
                 category: "Rejected",
                 rejection: "Cannot promote parties at FIB."
+            },
+            {
+                raw: "buying seed bulk. 2500 each",
+                formatted: "Buying seeds in bulk. Budget: $2.500 each.",
+                category: "Other"
+            },
+            {
+                raw: "sell a rp ticket",
+                formatted: "Selling a Grand ticket. Price: Negotiable.",
+                category: "Other"
+            },
+            {
+                raw: "buy grand coin",
+                formatted: "Cannot promote illegal items.",
+                category: "Rejected",
+                rejection: "Cannot promote illegal items."
+            },
+            {
+                raw: "i need cocain. 8k each.",
+                formatted: "Cannot promote illegal items.",
+                category: "Rejected",
+                rejection: "Cannot promote illegal items."
+            },
+            {
+                raw: "Selling house 503, garden, 25 garage, swimming pool, custom interior in mirror park. Price : 50 mil",
+                formatted: "Selling house №503 with a garden, 25 g.s., custom interior and swimming pool in Mirror Park. Price: $50 Million.",
+                category: "Real Estate"
+            },
+            {
+                raw: "i have a house for rent, 250k per week",
+                formatted: "Renting out a house. Rent: $250.000 per week.",
+                category: "Real Estate"
+            },
+            {
+                raw: "buying swift deluxe, price 10 million",
+                formatted: 'Buying "Swift Deluxe". Budget: $10 Million.',
+                category: "Auto"
+            },
+            {
+                raw: "selling a seashark.",
+                formatted: 'Selling "SeaShark". Price: Negotiable.',
+                category: "Auto"
+            },
+            {
+                raw: "selling gun store 269 price 500m",
+                formatted: "Selling Ammunition Store №269. Price: Negotiable.",
+                category: "Business"
+            },
+            {
+                raw: "looking to buy juice shop",
+                formatted: "Buying Juice shop business. Budget: Negotiable.",
+                category: "Business"
+            },
+            {
+                raw: "i need a girlfriend",
+                formatted: "Looking for a girlfriend.",
+                category: "Dating"
+            },
+            {
+                raw: "selling 20 taxi share",
+                formatted: "Selling 20 Taxi fleet shares. Price: Negotiable.",
+                category: "Business"
+            },
+            {
+                raw: "buying boys Adidas pant. 80 mil",
+                formatted: "Buying Abibas pants for men. Budget: $80 Million.",
+                category: "Other"
+            },
+            {
+                raw: "sell 2pcs level 2 engine. 3pcs lvl 2 tire and 2pcs lvl 3 transmission. price 900k, 200k and 300k each.",
+                formatted: "Selling 2 medium quality engine, 3 medium quality tires and 2 high quality transmission tunings. Price: $900.000, $200.000 and $300.000 each respectively.",
+                category: "Other"
+            },
+            {
+                raw: "selling chiron with max tuning parts, full chip tuning, modification, insurance, turbo and drift kit for 30 million",
+                formatted: 'Selling "Truffade Chiron" with full configuration, visual upgrades, insurance, turbo kit and drift kit. Price: $30 Million.',
+                category: "Auto"
+            },
+            {
+                raw: "buying a lion. Budget 10 mil",
+                formatted: "Buying cage with a Lion Cub. Budget: $10 Million.",
+                category: "Other"
+            },
+            {
+                raw: "selling 15 tonic treat. Budget - 90k each",
+                formatted: "Selling 15 tonic treats. Price: $90.000 each.",
+                category: "Other"
+            },
+            {
+                raw: "Looking for Zandre Mortez",
+                formatted: "Looking for Zandre Mortez.",
+                category: "Dating"
+            },
+            {
+                raw: "hiring family members.",
+                formatted: "Looking for family members.",
+                category: "Dating"
             }
         ];
 
@@ -539,7 +669,29 @@
             const vehicleMatch = ad.match(/(?:selling|buying|trading)\s+([^.,]+?)(?:\s+with|\s+for|\.|$)/i);
             if (vehicleMatch) {
                 const vehicleName = vehicleMatch[1].trim();
-                formatted = formatted.replace(vehicleName, `"${vehicleName}"`);
+                // Check if vehicle is in database
+                const foundVehicle = vehicleDatabase.find(v => 
+                    v.toLowerCase().includes(vehicleName.toLowerCase()) || 
+                    vehicleName.toLowerCase().includes(v.toLowerCase())
+                );
+                
+                if (foundVehicle) {
+                    // Check if vehicle is non-sellable
+                    if (nonSellableVehicles.some(nsv => 
+                        nsv.toLowerCase().includes(foundVehicle.toLowerCase()) || 
+                        foundVehicle.toLowerCase().includes(nsv.toLowerCase())
+                    )) {
+                        return {
+                            formattedAd: "Cannot advertise this vehicle is non sellable.",
+                            category: "Rejected",
+                            rejectionReason: "Cannot advertise this vehicle is non sellable."
+                        };
+                    }
+                    
+                    formatted = formatted.replace(vehicleName, `"${foundVehicle}"`);
+                } else {
+                    formatted = formatted.replace(vehicleName, `"${vehicleName}"`);
+                }
             }
             
             // Standardize terms
@@ -676,12 +828,22 @@
                 }
             }
             
-            // Ensure dollar sign before amounts
-            formatted = formatted.replace(/(?:price|budget|rent)\s*:\s*(\d+(?:\.\d+)?)\s*(?:mil|million|m)/gi, (match, p1) => {
-                return match.replace(p1, `$${p1} Million`);
+            // Format price values
+            formatted = formatted.replace(/(?:price|budget|rent)\s*:\s*\$?(\d+(?:\.\d+)?)\s*(?:mil|million|m)/gi, (match, p1) => {
+                return match.replace(`${p1}`, `$${p1} Million`);
             });
             
-            formatted = formatted.replace(/(?:price|budget|rent)\s*:\s*(\d+(?:\.\d+)?)\s*k/gi, (match, p1) => {
+            formatted = formatted.replace(/(?:price|budget|rent)\s*:\s*\$?(\d+(?:\.\d+)?)\s*k/gi, (match, p1) => {
+                const amount = parseFloat(p1) * 1000;
+                return match.replace(`${p1}k`, `$${amount.toLocaleString()}`);
+            });
+            
+            // Format standalone price mentions
+            formatted = formatted.replace(/\$?(\d+(?:\.\d+)?)\s*(?:mil|million|m)(?:\s|\.|$)/gi, (match, p1) => {
+                return match.replace(`${p1}`, `$${p1} Million`);
+            });
+            
+            formatted = formatted.replace(/\$?(\d+(?:\.\d+)?)\s*k(?:\s|\.|$)/gi, (match, p1) => {
                 const amount = parseFloat(p1) * 1000;
                 return match.replace(`${p1}k`, `$${amount.toLocaleString()}`);
             });
