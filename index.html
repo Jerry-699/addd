@@ -1,574 +1,659 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Lifeinvader Ads — EN-03 • Advanced Auto-Detect</title>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#0f1720;--panel:#121a24;--ink:#e6eef7;--muted:#9fb1c5;--chip:#1c2733;
-  --brand:#4da3ff;--ok:#2ecc71;--warn:#ffb020;--bad:#ff5a5a;--btn:#1b6fe7;
-  --btn-ink:#fff;--line:#203040;--accent:#2a3848;
-}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
-.wrap{max-width:980px;margin:40px auto;padding:0 16px}
-h1{font-size:20px;margin:0 0 14px;display:flex;gap:8px;align-items:center}
-h1 .bolt{color:#ffd166}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
-.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-textarea,input,select{width:100%;background:#0c1219;color:var(--ink);border:1px solid var(--accent);border-radius:10px;padding:12px;font:inherit;outline:none}
-textarea{min-height:150px;resize:vertical}
-.btn{background:var(--btn);color:var(--btn-ink);border:0;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer}
-.btn.secondary{background:#1f2a36}
-.btn.ghost{background:transparent;border:1px solid var(--accent)}
-.btn:disabled{opacity:.6;cursor:not-allowed}
-.out{background:#0c1219;border:1px dashed var(--accent);padding:12px;border-radius:10px;min-height:44px;white-space:pre-wrap}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.chip{background:var(--chip);color:var(--muted);padding:6px 10px;border-radius:999px;font-size:12px;border:1px solid var(--accent)}
-.chip.ok{color:#bff3cf;border-color:#294e3a;background:#15251c}
-.chip.bad{color:#ffd3d3;border-color:#4a2626;background:#241212}
-.chip.warn{color:#fff0c2;border-color:#4a4126;background:#241f12}
-.muted{color:var(--muted)}
-.two{display:grid;grid-template-columns:1fr;gap:14px}
-@media(min-width:840px){.two{grid-template-columns:1fr 1fr}}
-.kicker{font-size:12px;color:var(--muted);margin:6px 0 0}
-.bar{display:flex;gap:8px;align-items:center;margin-top:10px}
-.right{margin-left:auto}
-.tiny{font-size:11px}
-.foot{margin-top:24px;font-size:12px;color:var(--muted)}
-.examples{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-top:15px}
-.example-card{background:#0c1219;border:1px solid var(--accent);border-radius:8px;padding:12px;cursor:pointer;transition:all 0.2s}
-.example-card:hover{background:#131c26}
-.example-raw{font-size:12px;color:var(--muted);margin-bottom:6px}
-.example-result{font-size:13px;font-weight:500}
-.hidden{display:none}
-.stats{margin-top:8px;font-size:11px;color:var(--muted)}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeInvader Ad Formatter</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .input-section, .output-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            display: inline-block;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-clear {
+            background-color: var(--accent);
+        }
+        
+        .btn-clear:hover {
+            background-color: #c0392b;
+        }
+        
+        .formatted-ad {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            min-height: 200px;
+            white-space: pre-wrap;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .rules-section {
+            margin-top: 30px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .rules-toggle {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        
+        .rules-content {
+            display: none;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        
+        .rules-content h3 {
+            color: var(--primary);
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .rules-content ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .rules-content li {
+            margin-bottom: 5px;
+        }
+        
+        .category-selector {
+            margin-bottom: 15px;
+        }
+        
+        .category-selector label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .notification {
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .notification.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .notification.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .copy-btn {
+            background-color: var(--success);
+            margin-top: 10px;
+        }
+        
+        .copy-btn:hover {
+            background-color: #27ae60;
+        }
+        
+        .examples {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .examples p {
+            margin-bottom: 5px;
+        }
+    </style>
 </head>
 <body>
-<div class="wrap">
-  <h1><span class="bolt">⚡</span> Lifeinvader Ad Formatter EN-03</h1>
-  <p class="muted tiny">Advanced auto-detection with manual correction. Uses comprehensive policy rules.</p>
-
-  <div class="card">
-    <label class="muted tiny">RAW AD TEXT</label>
-    <textarea id="raw" placeholder="e.g., selling annis rx7 with max tuning • buying house with garden • hiring solar workers"></textarea>
-    <div class="bar">
-      <button id="gen" class="btn">Generate</button>
-      <button id="clear" class="btn secondary">Clear</button>
-      <span class="right tiny muted" id="status">Ready.</span>
+    <div class="container">
+        <header>
+            <h1>LifeInvader Ad Formatter</h1>
+            <p class="subtitle">Format your ads according to LifeInvader policy</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="input-section">
+                <h2>Input Raw Ad</h2>
+                <div class="category-selector">
+                    <label for="category">Select Ad Category:</label>
+                    <select id="category">
+                        <option value="auto">Auto</option>
+                        <option value="real-estate">Real Estate</option>
+                        <option value="business">Business</option>
+                        <option value="work">Work</option>
+                        <option value="dating">Dating</option>
+                        <option value="services">Services</option>
+                        <option value="discounts">Discounts</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <textarea id="raw-ad" placeholder="Paste your raw ad here..."></textarea>
+                <div class="examples">
+                    <p><strong>Examples:</strong></p>
+                    <p>Auto: "selling my annis rx7 fd with max upgrades"</p>
+                    <p>Real Estate: "selling house with garden and garage"</p>
+                    <p>Other: "trading black abibas pants for blue ones"</p>
+                </div>
+                <button class="btn" id="format-btn">Format Ad</button>
+                <button class="btn btn-clear" id="clear-btn">Clear</button>
+            </div>
+            
+            <div class="output-section">
+                <h2>Formatted Ad</h2>
+                <div id="notification" class="notification"></div>
+                <div class="formatted-ad" id="formatted-ad">Your formatted ad will appear here...</div>
+                <button class="btn copy-btn" id="copy-btn">Copy to Clipboard</button>
+            </div>
+        </div>
+        
+        <div class="rules-section">
+            <button class="rules-toggle" id="rules-toggle">Show Formatting Rules</button>
+            <div class="rules-content" id="rules-content">
+                <h3>General Rules</h3>
+                <ul>
+                    <li>Always begin with: "Buying" - "Selling" - "Trading" - "Selling or trading"</li>
+                    <li>For "Buying" put "Budget:". For "Selling" put "Price:".</li>
+                    <li>If no Budget/Price mentioned, use "Negotiable"</li>
+                    <li>First letter is ALWAYS capital, end with a period (unless ending with a number)</li>
+                    <li>Use $ before the amount, not after ($5 Million, $500.000)</li>
+                    <li>Use full stop (.) instead of comma (,) for prices</li>
+                    <li>Do NOT use "k" for thousand or "M" for Million - write out in numbers</li>
+                </ul>
+                
+                <h3>Term Replacements</h3>
+                <ul>
+                    <li>Max config/max tuning → with full configuration</li>
+                    <li>Nearly max/part lvl3 → with partial configuration</li>
+                    <li>Body upgrades → with visual upgrades</li>
+                    <li>Turbo → turbo kit</li>
+                    <li>Drift tuning → drift kit</li>
+                    <li>Luminous rims → luminous wheels</li>
+                    <li>Level 1/low level → low quality</li>
+                    <li>Level 2/medium level → medium quality</li>
+                    <li>Level 3/high level → high quality</li>
+                    <li>Crates/cases → containers</li>
+                    <li>Spray cans → paint cans</li>
+                    <li>Extras → of type</li>
+                </ul>
+                
+                <h3>Auto Category Specific</h3>
+                <ul>
+                    <li>Maximum ONE vehicle per ad (unless trading)</li>
+                    <li>Vehicle names in quotes: "Brand Model"</li>
+                    <li>Order of features: configuration → visual upgrades → luminous wheels → insurance → turbo kit → drift kit</li>
+                    <li>Can only trade Vehicle for Vehicle</li>
+                </ul>
+                
+                <h3>Real Estate Specific</h3>
+                <ul>
+                    <li>Maximum one numbered property, or up to 3 unnumbered</li>
+                    <li>Use № for numbered properties</li>
+                    <li>Garage spaces: 2 g.s., 5 g.s., 9 g.s., 25 g.s.</li>
+                    <li>Warehouse: w.h.</li>
+                    <li>Features order: garden → garage → warehouse → custom interior → insurance → helipad → others → location</li>
+                </ul>
+                
+                <h3>Prohibited Content</h3>
+                <ul>
+                    <li>Firearms, ammunition, armor</li>
+                    <li>Drugs, weed/cannabis</li>
+                    <li>EMS/surgical masks, balaclava masks</li>
+                    <li>Lock picks, crowbars, ropes</li>
+                    <li>Grand coins, Battlepass items</li>
+                    <li>Specific family names</li>
+                    <li>Gangs, nationality</li>
+                    <li>Sexual content, sale of people</li>
+                    <li>State leaders (unless in leader-list)</li>
+                </ul>
+            </div>
+        </div>
     </div>
 
-    <div style="height:10px"></div>
-
-    <div class="out" id="out">Your formatted ad will appear here…</div>
-    <div class="bar">
-      <button id="copy" class="btn ghost">Copy</button>
-      <div id="badges" class="chips"></div>
-    </div>
-  </div>
-
-  <div style="height:18px"></div>
-
-  <div class="card">
-    <h3 style="margin:0 0 10px">Manual Correction</h3>
-    <p class="muted tiny">Auto-detected values. Edit and apply corrections.</p>
-
-    <div class="two">
-      <div>
-        <label class="muted tiny">Action</label>
-        <select id="mfOpener">
-          <option value="auto">Auto-detect</option>
-          <option>Buying</option>
-          <option>Selling</option>
-          <option>Trading</option>
-          <option>Selling or trading</option>
-          <option>Renting out</option>
-          <option>Hiring</option>
-          <option>Looking to work</option>
-          <option>Looking for</option>
-          <option>Party at</option>
-        </select>
-      </div>
-      <div>
-        <label class="muted tiny">Money Type</label>
-        <select id="mfMoneyLabel">
-          <option value="auto">Auto-detect</option>
-          <option>Price</option>
-          <option>Budget</option>
-          <option>Rent</option>
-          <option>Salary</option>
-          <option>Bet</option>
-          <option>None</option>
-        </select>
-      </div>
-      <div>
-        <label class="muted tiny">Subject</label>
-        <input id="mfSubject" placeholder='e.g., "Annis RX-7 (FD)" with full configuration'>
-      </div>
-      <div>
-        <label class="muted tiny">Amount</label>
-        <input id="mfAmount" placeholder='e.g., 20k, 1.5m, Negotiable'>
-        <div class="kicker tiny muted">k=thousands (20k→$20.000), m=millions (1.5m→$1.5 Million)</div>
-      </div>
-    </div>
-
-    <div class="bar" style="margin-top:14px">
-      <button id="apply" class="btn secondary">Apply</button>
-      <button id="applySave" class="btn">Apply &amp; Save Rule</button>
-      <label class="right tiny"><input id="autoRules" type="checkbox" checked> Auto-apply saved rules</label>
-    </div>
-
-    <div class="kicker tiny muted" id="rulesInfo">No rules saved yet.</div>
-  </div>
-
-  <div style="height:18px"></div>
-
-  <div class="card">
-    <h3 style="margin:0 0 10px">Quick Examples</h3>
-    <p class="muted tiny">Click any example to test the formatter</p>
-    
-    <div class="examples" id="examples">
-      <!-- Examples will be populated by JavaScript -->
-    </div>
-  </div>
-
-  <div class="foot">
-    EN-03 Policy Compliant: Proper capitalization, price formatting, business naming, blacklist enforcement, category detection.
-  </div>
-</div>
-
-<script>
-// DOM elements
-const $ = s => document.querySelector(s);
-const rawEl = $("#raw"), outEl = $("#out"), statusEl = $("#status"), badgesEl = $("#badges");
-const mfOpener = $("#mfOpener"), mfSubject = $("#mfSubject"), mfMoney = $("#mfMoneyLabel"), mfAmount = $("#mfAmount");
-const btnGen = $("#gen"), btnClear = $("#clear"), btnCopy = $("#copy"), btnApply = $("#apply"), btnApplySave = $("#applySave"), chkAuto = $("#autoRules");
-const examplesEl = $("#examples");
-
-// Comprehensive catalog with all LifeInvader rules
-const CATALOG = {
-  blacklist: [
-    "firearm", "gun", "pistol", "rifle", "shotgun", "ammo", "ammunition", "bulletproof", "armor plate",
-    "weed", "cannabis", "marijuana", "cocaine", "drug", "balaclava", "covid mask", "ems mask", "surgical mask",
-    "radar", "scanner", "anti-radar", "head bag", "rope", "crowbar", "usb with virus", "troll ad",
-    "animal skin", "barricade", "satellite dish", "engine block", "air horn", "grand coin", "battlepass",
-    "nationality", "sexual", "sell people", "hype body", "branded armor", "gang", "black market", "mega mall"
-  ],
-  
-  banned_party_places: ["lspd", "fib", "sahp", "ems", "government", "ghetto", "mega mall", "black market", "gang hq"],
-  
-  nonsellable_autos: [
-    "p1 car", "benefactor maybach gls 600", "annnis concept 2021", "brabus rocket", "overflod jesko"
-  ],
-
-  business_map: {
-    "barber": "Hair salon business", "barber shop": "Hair salon business", "hair salon": "Hair salon business",
-    "gun store": "Ammunition Store business", "weapon shop": "Ammunition Store business", "weapon store": "Ammunition Store business",
-    "drug lab": "Burger shop business", "charging station": "Electric station business",
-    "auto workshop": "Service station business", "service station": "Service station business",
-    "24/7": "24/7 Store business", "24/7 store": "24/7 Store business", "atm": "ATM business",
-    "car wash": "Car wash business", "chip tuning": "Chip tuning business", "clothing shop": "Clothing shop business",
-    "cowshed": "Cowshed business", "plantation": "Plantation business", "taxi company": "Taxi company business",
-    "grand elite": "Grand Elite business", "jewelry store": "Jewelry store business", "oil well": "Oil Well business",
-    "parking": "Parking business", "pet shop": "Pet Shop business", "car sharing": "Car sharing business",
-    "state object": "State object business", "tattoo studio": "Tattoo studio business", "gas station": "Gas station business",
-    "burger shop": "Burger shop business", "warehouse": "Warehouse business", "freight train": "Freight train business",
-    "flower shop": "Flower shop business", "electric station": "Electric station business", "farm": "Farm business",
-    "juice shop": "Juice shop business", "fight club": "Fight club business"
-  },
-
-  vehicle_synonyms: {
-    "supra": "Karin Supra A80", "rx7": "Annis RX-7 (FD)", "r34": "Annis Skyline GT-R (R34)",
-    "silvia": "Annis Silvia (S15)", "chiron": "Truffade Chiron", "gtr": "Annis Skyline GT-R (R34)",
-    "porsche": "Pfister", "bmw": "Ubermacht", "mercedes": "Benefactor", "audi": "Obey"
-  },
-
-  official_places: [
-    "Vinewood Hills", "Rockford Hills", "Richman", "Sandy Shores", "Paleto Bay", "Postal", "Hospital", "Capitol",
-    "Fire Station", "Auto Fair", "Bahama Mamas Bar", "Tequi-la-la Bar", "FIB", "Hotel Spa Bar",
-    "Pacific Bluffs Country Club", "Diamond Resort Bar", "Vanilla Unicorn Bar", "Church", "Stock Exchange",
-    "Stadium", "Chumash", "Lifeinvader", "Del Perro Pier", "Del Perro Beach", "Cayo Perico Island",
-    "Hotel", "Raton Canyon", "School", "SAHP"
-  ],
-  
-  unofficial_places: ["airport", "autosalon", "beach", "beach market", "post office", "train station", "yacht", "ghetto"]
-};
-
-// Example ads for testing
-const EXAMPLE_ADS = [
-  { raw: "selling monowheel budget 2.5m", result: 'Selling "Monowheel". Price: $2.5 Million.', category: "Auto" },
-  { raw: "I want to but a penthouse. My budget is 20 mil", result: "Buying Casino penthouse. Budget: $20 Million.", category: "Real Estate" },
-  { raw: "selling house 71 and 1008. Price nego", result: "Cannot advertise more than 1 property at a time.", category: "Rejected" },
-  { raw: "buying a biz. Budget 150 mil", result: "Buying a private business. Budget: $150 Million.", category: "Business" },
-  { raw: "looking Anindo winslow", result: "Looking for Anindo Winslow.", category: "Dating" },
-  { raw: "i am a lawyer, i need work", result: "Lawyer looking for work.", category: "Work" },
-  { raw: "sell supra, price 10 mil", result: 'Selling "Karin Supra A80". Price: $10 Million.', category: "Auto" },
-  { raw: "buying p1. Budget nego", result: "Cannot advertise this vehicle is non sellable.", category: "Rejected" },
-  { raw: "party at fib", result: "Cannot promote parties at FIB.", category: "Rejected" },
-  { raw: "buying seed bulk. 2500 each", result: "Buying seeds in bulk. Budget: $2.500 each.", category: "Other" },
-  { raw: "i need cocain. 8k each.", result: "Cannot promote illegal items.", category: "Rejected" },
-  { raw: "Selling house 503, garden, 25 garage, swimming pool, custom interior in mirror park. Price : 50 mil", 
-    result: "Selling house №503 with a garden, 25 g.s., custom interior and swimming pool in Mirror Park. Price: $50 Million.", 
-    category: "Real Estate" }
-];
-
-// Utility functions
-function status(m) { statusEl.textContent = m; }
-function clearBadges() { badgesEl.innerHTML = ""; }
-function badge(t, c = "") { 
-  const s = document.createElement("span"); 
-  s.className = "chip " + c; 
-  s.textContent = t; 
-  badgesEl.appendChild(s); 
-}
-
-function copyText(s) { 
-  navigator.clipboard.writeText(s || "").then(() => status("Copied!")); 
-}
-
-function dotThousands(n) { 
-  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); 
-}
-
-function asMoney(raw) {
-  if (!raw) return "Negotiable";
-  raw = raw.trim();
-  if (/^negotiable$/i.test(raw)) return "Negotiable";
-  
-  const each = /\beach\b/i.test(raw) ? " each" : "";
-  const per = /\bper\s*(week|day|month)\b/i.exec(raw);
-  const perTxt = per ? ` per ${per[1]}` : "";
-  let s = raw.replace(/\$/g, "").replace(/,/g, "").trim();
-
-  let m;
-  if ((m = s.match(/^(\d+(?:\.\d+)?)\s*m/i))) {
-    const v = parseFloat(m[1]); 
-    return `$${v} Million${each}${perTxt}`;
-  }
-  if ((m = s.match(/^(\d+(?:\.\d+)?)\s*k/i))) {
-    const v = Math.round(parseFloat(m[1]) * 1000) + ""; 
-    return `$${dotThousands(v)}${each}${perTxt}`;
-  }
-  if (/^\d+$/.test(s)) return `$${dotThousands(s)}${each}${perTxt}`;
-  return raw;
-}
-
-// Local rules system
-const RULE_KEY = "li_rules_v1";
-const getRules = () => { try { return JSON.parse(localStorage.getItem(RULE_KEY) || "[]") } catch { return [] } };
-const setRules = a => { localStorage.setItem(RULE_KEY, JSON.stringify(a)); showRulesInfo(); };
-
-function showRulesInfo() { 
-  const n = getRules().length; 
-  $("#rulesInfo").textContent = n ? `${n} rule${n > 1 ? "s" : ""} saved. Auto-apply is ${$("#autoRules").checked ? "on" : "off"}.` : "No rules saved yet."; 
-}
-
-function applyLocalRules(s) { 
-  for (const r of getRules()) { 
-    try { 
-      const re = new RegExp(r.pattern, "i"); 
-      if (re.test(s)) s = s.replace(re, r.replacement); 
-    } catch {} 
-  } 
-  return s; 
-}
-
-// Text processing functions
-function fixTypos(s) {
-  let t = ` ${s.toLowerCase()} `;
-  t = t.replace(/\booking\s+work\b/g, "looking to work");
-  t = t.replace(/\bi want to but\b/g, "i want to buy");
-  t = t.replace(/\brp\s*ticket\b/g, "grand ticket");
-  t = t.replace(/\bcrypto\s*currency\b/g, "tokens");
-  t = t.replace(/\bseed bulk\b/g, "seeds in bulk");
-  t = t.replace(/\bparty at\s+fib\b/g, "party at fib");
-  return t.trim();
-}
-
-function levelToQuality(s) {
-  return s
-    .replace(/\bmax\s+level\b/ig, "max quality")
-    .replace(/\b(?:level|lvl)\s*1\b/ig, "low quality")
-    .replace(/\b(?:level|lvl)\s*2\b/ig, "medium quality")
-    .replace(/\b(?:level|lvl)\s*3\b/ig, "high quality")
-    .replace(/\b(?:level|lvl)\s*4\b/ig, "max quality");
-}
-
-function sentenceCase(s) { 
-  s = s.trim(); 
-  return s ? s[0].toUpperCase() + s.slice(1) : s; 
-}
-
-// Detection functions
-function detectBlacklist(s) {
-  const low = s.toLowerCase();
-  for (const w of CATALOG.blacklist) { 
-    if (low.includes(w)) return { reject: true, reason: `Contains illegal/blacklisted term: "${w}"` }; 
-  }
-  
-  for (const v of CATALOG.nonsellable_autos) { 
-    if (low.includes(v.toLowerCase())) return { reject: true, reason: `Non-sellable vehicle: "${v}"` }; 
-  }
-  
-  if (/\bparty at\b/.test(low) && CATALOG.banned_party_places.some(p => low.includes(p))) {
-    return { reject: true, reason: "We do not promote parties at that location." };
-  }
-  
-  return { reject: false };
-}
-
-function detectOpener(s) {
-  const low = s.toLowerCase();
-  if (/\brenting out\b/.test(low) || /\brent out\b/.test(low)) return "Renting out";
-  if (/\bhiring\b/.test(low)) return "Hiring";
-  if (/\blooking to work\b/.test(low) || /\blooking for work\b/.test(low)) return "Looking to work";
-  if (/\blooking for\b/.test(low)) return "Looking for";
-  if (/\bbuying\b/.test(low) || /\bi want to buy\b/.test(low)) return "Buying";
-  if (/\bselling or trading\b/.test(low)) return "Selling or trading";
-  if (/\btrading\b/.test(low)) return "Trading";
-  if (/\bselling\b/.test(low)) return "Selling";
-  if (/\bparty at\b/.test(low)) return "Party at";
-  return "Selling";
-}
-
-function detectCategory(s) {
-  const low = s.toLowerCase();
-  if (/\bhouse|apartment|penthouse|mansion\b/.test(low) || /\bg\.s\.|w\.h\.|helipad|garden\b/.test(low)) return "Real Estate";
-  if (/\bbusiness\b/.test(low) || /\bcontrol\b/.test(low)) return "Business";
-  for (const k of Object.keys(CATALOG.business_map)) { if (low.includes(k)) return "Business"; }
-  if (/\bcar|vehicle|motorcycle|bike|boat|helicopter|plane\b/.test(low)) return "Auto";
-  if (/\bhiring\b/.test(low) || /\blooking to work\b/.test(low)) return "Work";
-  if (/^looking for /.test(low) || /\blooking for a (?:wife|husband|boyfriend|girlfriend|family)\b/.test(low)) return "Dating";
-  if (/\bdiscount|%\s*off\b/.test(low)) return "Discounts";
-  if (/\bservice|template|gps\s*№\b/.test(low)) return "Services";
-  return "Other";
-}
-
-function moneyLabelForOpener(opener) {
-  switch (opener) {
-    case "Buying": return "Budget";
-    case "Selling": return "Price";
-    case "Renting out": return "Rent";
-    case "Hiring": return "Salary";
-    default: return "None";
-  }
-}
-
-function extractMoneyRaw(s) {
-  if (/\bnego|negotiable\b/i.test(s)) return "Negotiable";
-  const m = s.match(/\$?\s*\d+(?:\.\d+)?\s*[km]?\b(?:\s*each|\s*per\s*(?:week|day|month))?/i);
-  return m ? m[0].trim() : "";
-}
-
-// Normalization functions
-function normalizeBusinessSubject(raw) {
-  let low = raw.toLowerCase();
-  low = low.replace(/personal business/g, "private business");
-  for (const [k, canon] of Object.entries(CATALOG.business_map)) {
-    const re = new RegExp(`\\b${k}\\b`, "i");
-    if (re.test(low)) return sentenceCase(canon.replace(/ business$/, "")) + " business";
-  }
-  return "a private business";
-}
-
-function normalizeAutoSubject(raw) {
-  let s = raw;
-  // Apply vehicle synonyms
-  for (const [k, v] of Object.entries(CATALOG.vehicle_synonyms)) {
-    const re = new RegExp(`\\b${k}\\b`, "i");
-    s = s.replace(re, `"${v}"`);
-  }
-  // Apply quality conversions
-  s = levelToQuality(s);
-  s = s.replace(/\bdrift (?:tuning|assistance)\b/ig, "drift kit");
-  s = s.replace(/\bturbo\b/ig, "turbo kit");
-  s = s.replace(/\b(body (?:upgrades|kit)|modification|visuals?)\b/ig, "visual upgrades");
-  s = s.replace(/\bluminous (?:rims|unique wheels?)\b/ig, "luminous wheels");
-  return sentenceCase(s);
-}
-
-function normalizeRealEstate(raw) {
-  let s = raw.toLowerCase();
-  
-  // Check for multiple properties
-  const nums = [...s.matchAll(/\b(?:no|№)?\s*(\d{1,5})\b/g)].map(m => m[1]);
-  if (/house/.test(s) && nums.length > 1) {
-    return { reject: true, reason: "Cannot advertise more than 1 property number at a time." };
-  }
-
-  const typ = s.match(/\b(house|apartment|penthouse|mansion)\b/);
-  const type = typ ? typ[1] : "house";
-  
-  let num = "";
-  const n = s.match(/\b(?:house|apartment|penthouse|mansion)?\s*(?:no|№)\s*(\d{1,5})\b/);
-  if (n) num = ` №${n[1]}`;
-
-  const feats = [];
-  if (/\bgarden\b/.test(s)) feats.push("a garden");
-  
-  let gs = "";
-  const mgs = s.match(/\b(2|5|9|25)\s*(?:g\.?s\.?|garage)\b/);
-  if (mgs) gs = mgs[1] + " g.s.";
-  if (gs) feats.push(gs);
-
-  if (/\bcustom\s*interior\b/.test(s)) feats.push("custom interior");
-  if (/\binsurance\b/.test(s)) feats.push("insurance");
-
-  let subject = `a ${type}${num}`;
-  if (feats.length) {
-    const last = feats.pop();
-    subject += " with " + (feats.length ? feats.join(", ") + " and " : "") + last;
-  }
-  
-  return sentenceCase(subject);
-}
-
-// Main generation function
-function generate() {
-  clearBadges();
-  let raw = rawEl.value.trim();
-  if (!raw) { outEl.textContent = ""; status("Type a raw ad."); return; }
-
-  // Apply saved rules if enabled
-  if (chkAuto.checked) raw = applyLocalRules(raw);
-
-  let processed = fixTypos(raw);
-  processed = levelToQuality(processed);
-
-  // Check for blacklisted content
-  const blk = detectBlacklist(processed);
-  if (blk.reject) {
-    outEl.textContent = `⚠️ Rejected: ${blk.reason}`;
-    badge("Rejected", "bad");
-    return;
-  }
-
-  const category = detectCategory(processed);
-  let opener = mfOpener.value === "auto" ? detectOpener(processed) : mfOpener.value;
-  let moneyLabel = mfMoney.value === "auto" ? moneyLabelForOpener(opener) : mfMoney.value;
-  
-  let amount = mfAmount.value.trim();
-  if (!amount) {
-    const mRaw = extractMoneyRaw(processed);
-    amount = asMoney(mRaw || "Negotiable");
-  } else {
-    amount = asMoney(amount);
-  }
-
-  let subject = mfSubject.value.trim();
-  
-  if (!subject) {
-    let base = processed;
-    base = base.replace(/\b(price|budget|rent|salary)\s*[:.]?\s*\$?\d+(?:\.\d+)?\s*[km]?/ig, "");
-    base = base.replace(/\bnegotiable\b/ig, "");
-
-    if (category === "Business") {
-      subject = normalizeBusinessSubject(base);
-    } else if (category === "Real Estate") {
-      const r = normalizeRealEstate(base);
-      if (typeof r === "object" && r.reject) {
-        outEl.textContent = `⚠️ Rejected: ${r.reason}`;
-        badge("Rejected", "bad");
-        return;
-      }
-      subject = r;
-    } else if (category === "Auto") {
-      subject = normalizeAutoSubject(base);
-    } else if (category === "Work") {
-      subject = sentenceCase(base);
-    } else if (category === "Dating") {
-      subject = sentenceCase(base.replace(/\bhiring family members\b/i, "family members"));
-    } else {
-      subject = sentenceCase(base);
-    }
-  }
-
-  // Special case handling
-  if (/i need a (girlfriend|boyfriend)/i.test(processed)) {
-    opener = "Looking for";
-    subject = `a ${RegExp.$1}`;
-    moneyLabel = "None";
-  }
-
-  if (/party at house\s*(?:no|№)?\s*(\d+)/i.test(processed)) {
-    opener = "Party at house №" + RegExp.$1;
-    moneyLabel = "None";
-    subject = "";
-  }
-
-  // Build final sentence
-  let sentence = "";
-  if (moneyLabel === "None") {
-    sentence = `${opener} ${subject}.`;
-  } else {
-    sentence = `${opener} ${subject}. ${moneyLabel}: ${amount}.`;
-  }
-
-  // Remove double spaces and ensure proper punctuation
-  sentence = sentence.replace(/\s+/g, " ").trim();
-  if (!sentence.endsWith(".")) sentence += ".";
-
-  outEl.textContent = sentence;
-  badge(`Category: ${category}`);
-  badge(`Action: ${opener}`);
-  if (moneyLabel !== "None") badge(`Money: ${moneyLabel}`);
-  if (/Million/.test(amount) || /\$\d{1,3}(?:\.\d{3})+/.test(amount)) badge("Format OK", "ok");
-  status("Generated!");
-}
-
-// Populate examples
-function populateExamples() {
-  examplesEl.innerHTML = "";
-  EXAMPLE_ADS.forEach(ex => {
-    const card = document.createElement("div");
-    card.className = "example-card";
-    card.innerHTML = `
-      <div class="example-raw">${ex.raw}</div>
-      <div class="example-result">${ex.result}</div>
-      <div class="stats">${ex.category}</div>
-    `;
-    card.addEventListener("click", () => {
-      rawEl.value = ex.raw;
-      generate();
-    });
-    examplesEl.appendChild(card);
-  });
-}
-
-// Event listeners
-btnGen.addEventListener("click", generate);
-btnClear.addEventListener("click", () => {
-  rawEl.value = "";
-  outEl.textContent = "";
-  clearBadges();
-  status("Cleared.");
-});
-btnCopy.addEventListener("click", () => copyText(outEl.textContent));
-btnApply.addEventListener("click", () => { generate(); status("Applied."); });
-btnApplySave.addEventListener("click", () => {
-  const r = rawEl.value.trim();
-  if (!r) { status("Nothing to save."); return; }
-  const rules = getRules();
-  const pattern = r.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").slice(0, 200);
-  const replacement = fixTypos(levelToQuality(r));
-  rules.unshift({ pattern, replacement });
-  setRules(rules);
-  status("Saved rule & applied.");
-  generate();
-});
-
-// Initialize
-showRulesInfo();
-populateExamples();
-
-// Auto-generate when page loads with example
-rawEl.value = "selling annis rx7 with max tuning, visual upgrades and insurance. price 15 million";
-generate();
-</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const formatBtn = document.getElementById('format-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const copyBtn = document.getElementById('copy-btn');
+            const rulesToggle = document.getElementById('rules-toggle');
+            const rulesContent = document.getElementById('rules-content');
+            const rawAdTextarea = document.getElementById('raw-ad');
+            const formattedAdDiv = document.getElementById('formatted-ad');
+            const notificationDiv = document.getElementById('notification');
+            const categorySelect = document.getElementById('category');
+            
+            // Vehicle data from the spreadsheet
+            const vehicles = [
+                "Adder", "Baller", "Calico GTF", "Declasse Corvette C7", "Elegy Retro Custom", 
+                "F620", "Gallivanter Defender", "Hermes", "Imorgon", "Jackal", "Kamacho",
+                "Lampadati Giulia GTA", "Mamba", "Nebula Turbo", "Oracle", "Panto", "Raiden",
+                "Sabre Turbo", "T-20", "Ubermacht 760 (LI)", "V-STR", "Warrener", "X80 Proto",
+                "Yosemite", "Z-Type", "9F", "Alpha", "Baller LE LWB", "Caracara 4x4",
+                // Add more vehicles as needed from the spreadsheet
+            ];
+            
+            // Clothing items from the spreadsheet
+            const clothingItems = [
+                "Air Bior pullover sweater", "black jacket with yellow trim", 
+                "bomber jacket with glowing elements", "branded insulated hoodie",
+                "branded longsleeve", "branded T-shirt", "bright hoodie",
+                "branded Molo T-shirt", "Casual neon set", "Casual neon torso",
+                "Chanel top", "collection 2022 T-shirt", "cropp collection T-shirt",
+                "denim jacket", "fur coat without a hood", "Glowing Bomber Set NEW Sample LW",
+                // Add more clothing items as needed from the spreadsheet
+            ];
+            
+            // Toggle rules visibility
+            rulesToggle.addEventListener('click', function() {
+                if (rulesContent.style.display === 'block') {
+                    rulesContent.style.display = 'none';
+                    rulesToggle.textContent = 'Show Formatting Rules';
+                } else {
+                    rulesContent.style.display = 'block';
+                    rulesToggle.textContent = 'Hide Formatting Rules';
+                }
+            });
+            
+            // Clear button
+            clearBtn.addEventListener('click', function() {
+                rawAdTextarea.value = '';
+                formattedAdDiv.textContent = 'Your formatted ad will appear here...';
+                notificationDiv.style.display = 'none';
+            });
+            
+            // Copy button
+            copyBtn.addEventListener('click', function() {
+                const textToCopy = formattedAdDiv.textContent;
+                if (textToCopy && textToCopy !== 'Your formatted ad will appear here...') {
+                    navigator.clipboard.writeText(textToCopy).then(function() {
+                        showNotification('Ad copied to clipboard!', 'success');
+                    }, function(err) {
+                        showNotification('Failed to copy ad: ' + err, 'error');
+                    });
+                } else {
+                    showNotification('No formatted ad to copy', 'error');
+                }
+            });
+            
+            // Format button
+            formatBtn.addEventListener('click', function() {
+                const rawAd = rawAdTextarea.value.trim();
+                const category = categorySelect.value;
+                
+                if (!rawAd) {
+                    showNotification('Please enter a raw ad to format', 'error');
+                    return;
+                }
+                
+                try {
+                    const formatted = formatAd(rawAd, category);
+                    formattedAdDiv.textContent = formatted;
+                    showNotification('Ad formatted successfully!', 'success');
+                } catch (error) {
+                    formattedAdDiv.textContent = 'Error formatting ad: ' + error.message;
+                    showNotification('Error formatting ad', 'error');
+                }
+            });
+            
+            // Format ad function
+            function formatAd(rawAd, category) {
+                let formatted = rawAd.trim();
+                
+                // Convert to lowercase for processing (we'll capitalize properly later)
+                formatted = formatted.toLowerCase();
+                
+                // Replace common terms
+                formatted = formatted.replace(/looking to buy|looking to purchase/g, 'buying');
+                formatted = formatted.replace(/max config|max tuning|fully upgraded/g, 'with full configuration');
+                formatted = formatted.replace(/nearly max|part lvl3|lvl3 or below/g, 'with partial configuration');
+                formatted = formatted.replace(/body upgrades|body kit/g, 'with visual upgrades');
+                formatted = formatted.replace(/\bturbo\b/g, 'turbo kit');
+                formatted = formatted.replace(/drift tuning|drift assistance/g, 'drift kit');
+                formatted = formatted.replace(/luminous rims|unique wheels/g, 'luminous wheels');
+                formatted = formatted.replace(/level 1|low level/g, 'low quality');
+                formatted = formatted.replace(/level 2|medium level/g, 'medium quality');
+                formatted = formatted.replace(/level 3|high level/g, 'high quality');
+                formatted = formatted.replace(/crates|cases/g, 'containers');
+                formatted = formatted.replace(/spray cans|spray balloons/g, 'paint cans');
+                formatted = formatted.replace(/\bextras\b/g, 'of type');
+                formatted = formatted.replace(/\bscarf\b/g, 'mask');
+                formatted = formatted.replace(/pumpkin|cabbage|pineapple|mandarin/g, 'fruits, vegetables or seeds');
+                formatted = formatted.replace(/unique \d+ rims/g, 'luminous wheels of type');
+                
+                // Handle different categories
+                switch(category) {
+                    case 'auto':
+                        formatted = formatAutoAd(formatted);
+                        break;
+                    case 'real-estate':
+                        formatted = formatRealEstateAd(formatted);
+                        break;
+                    case 'business':
+                        formatted = formatBusinessAd(formatted);
+                        break;
+                    case 'work':
+                        formatted = formatWorkAd(formatted);
+                        break;
+                    case 'dating':
+                        formatted = formatDatingAd(formatted);
+                        break;
+                    case 'services':
+                        formatted = formatServicesAd(formatted);
+                        break;
+                    case 'discounts':
+                        formatted = formatDiscountsAd(formatted);
+                        break;
+                    case 'other':
+                        formatted = formatOtherAd(formatted);
+                        break;
+                }
+                
+                // Capitalize first letter
+                formatted = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+                
+                // Add period if needed (not if ending with a number)
+                if (!/\d$/.test(formatted.trim())) {
+                    formatted = formatted.trim() + '.';
+                }
+                
+                return formatted;
+            }
+            
+            // Category-specific formatting functions
+            function formatAutoAd(ad) {
+                // Check if vehicle name is in our list and add quotes
+                for (const vehicle of vehicles) {
+                    const lowerVehicle = vehicle.toLowerCase();
+                    if (ad.includes(lowerVehicle)) {
+                        ad = ad.replace(lowerVehicle, `"${vehicle}"`);
+                        break;
+                    }
+                }
+                
+                // If no specific vehicle found, use generic "car"
+                if (!ad.includes('"')) {
+                    if (ad.includes('buying')) {
+                        ad = ad.replace(/buying.*?(car|vehicle)/, 'buying a car');
+                    } else if (ad.includes('selling')) {
+                        ad = ad.replace(/selling.*?(car|vehicle)/, 'selling a car');
+                    } else if (ad.includes('trading')) {
+                        ad = ad.replace(/trading.*?(car|vehicle)/, 'trading a car');
+                    }
+                }
+                
+                // Add price/budget if missing
+                if (ad.includes('buying') && !ad.includes('budget')) {
+                    ad += ' budget: negotiable';
+                } else if ((ad.includes('selling') || ad.includes('renting out')) && !ad.includes('price') && !ad.includes('rent')) {
+                    if (ad.includes('renting out')) {
+                        ad += ' rent: negotiable';
+                    } else {
+                        ad += ' price: negotiable';
+                    }
+                }
+                
+                return ad;
+            }
+            
+            function formatRealEstateAd(ad) {
+                // Handle house numbers
+                if (ad.match(/house \d+|apartment \d+|mansion \d+|penthouse \d+/)) {
+                    ad = ad.replace(/(house|apartment|mansion|penthouse) (\d+)/, '$1 №$2');
+                }
+                
+                // Replace "casino apartment" with "casino penthouse"
+                ad = ad.replace('casino apartment', 'casino penthouse');
+                
+                // Standardize garage spaces
+                ad = ad.replace(/garage|garage space|garage spots/g, 'g.s.');
+                ad = ad.replace(/warehouse|storage/g, 'w.h.');
+                
+                // Add price if missing
+                if (ad.includes('selling') && !ad.includes('price')) {
+                    ad += ' price: negotiable';
+                } else if (ad.includes('buying') && !ad.includes('budget')) {
+                    ad += ' budget: negotiable';
+                } else if (ad.includes('renting out') && !ad.includes('rent')) {
+                    ad += ' rent: negotiable';
+                }
+                
+                return ad;
+            }
+            
+            function formatBusinessAd(ad) {
+                // Standardize business names
+                ad = ad.replace(/gun store|weapon store/g, 'ammunition store');
+                ad = ad.replace(/strip club/g, 'bar');
+                ad = ad.replace(/charging station/g, 'electric station');
+                ad = ad.replace(/barber/g, 'hair salon');
+                ad = ad.replace(/drug lab/g, 'burger shop');
+                ad = ad.replace(/personal business/g, 'private business');
+                
+                // Add price if missing
+                if (ad.includes('selling') && !ad.includes('price')) {
+                    ad += ' price: negotiable';
+                } else if (ad.includes('buying') && !ad.includes('budget')) {
+                    ad += ' budget: negotiable';
+                }
+                
+                return ad;
+            }
+            
+            function formatWorkAd(ad) {
+                // Standardize job titles
+                ad = ad.replace(/exotic dancers|stripers/g, 'professional dancer');
+                ad = ad.replace(/\blevel\b/g, 'years experience');
+                
+                // Handle construction sites
+                if (ad.includes('construction site')) {
+                    if (ad.includes('construction site 1')) {
+                        ad = ad.replace('construction site 1', 'construction site №1 on vespucci boulevard');
+                    } else if (ad.includes('construction site 2')) {
+                        ad = ad.replace('construction site 2', 'construction site №2 on calais avenue');
+                    } else if (ad.includes('construction site 3')) {
+                        ad = ad.replace('construction site 3', 'construction site №3 in pillbox hill');
+                    }
+                }
+                
+                // Add salary if missing
+                if ((ad.includes('hiring') || ad.includes('looking for work')) && !ad.includes('salary')) {
+                    ad += ' salary: negotiable';
+                }
+                
+                return ad;
+            }
+            
+            function formatDatingAd(ad) {
+                // Ensure it starts with "looking for"
+                if (!ad.startsWith('looking for')) {
+                    ad = 'looking for ' + ad;
+                }
+                
+                // Capitalize names (simple implementation)
+                ad = ad.replace(/\b\w+/g, function(word) {
+                    // Don't capitalize small words unless they're the first word
+                    if (word === 'a' || word === 'the' || word === 'and' || word === 'or') {
+                        return word;
+                    }
+                    return word.charAt(0).toUpperCase() + word.slice(1);
+                });
+                
+                return ad;
+            }
+            
+            function formatServicesAd(ad) {
+                // This would typically use templates from the database
+                // For now, we'll just ensure proper capitalization
+                return ad;
+            }
+            
+            function formatDiscountsAd(ad) {
+                // Ensure percentage is properly formatted
+                ad = ad.replace(/(\d+) percent/g, '$1%');
+                ad = ad.replace(/(\d+)%/g, '$1%');
+                
+                return ad;
+            }
+            
+            function formatOtherAd(ad) {
+                // Check if clothing item is in our list
+                for (const item of clothingItems) {
+                    const lowerItem = item.toLowerCase();
+                    if (ad.includes(lowerItem)) {
+                        // Don't replace if we've already formatted this item
+                        if (!ad.includes(item)) {
+                            ad = ad.replace(lowerItem, item);
+                        }
+                        break;
+                    }
+                }
+                
+                // Add price/budget if missing
+                if (ad.includes('buying') && !ad.includes('budget')) {
+                    ad += ' budget: negotiable';
+                } else if (ad.includes('selling') && !ad.includes('price')) {
+                    ad += ' price: negotiable';
+                }
+                
+                return ad;
+            }
+            
+            // Show notification
+            function showNotification(message, type) {
+                notificationDiv.textContent = message;
+                notificationDiv.className = 'notification ' + type;
+                notificationDiv.style.display = 'block';
+                
+                // Auto-hide after 3 seconds
+                setTimeout(function() {
+                    notificationDiv.style.display = 'none';
+                }, 3000);
+            }
+        });
+    </script>
 </body>
 </html>
