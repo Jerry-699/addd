@@ -1,712 +1,1294 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Lifeinvader Ad Formatter (EN3)</title>
-<style>
-  :root {
-    --bg: #0b0f14;         /* dark by default */
-    --panel: #111821;
-    --panel-2: #0e141b;
-    --text: #e8eef6;
-    --muted: #9bb0c3;
-    --accent: #67b7ff;
-    --accent-2: #8be78b;
-    --danger: #ff7272;
-    --warn: #ffcc66;
-    --ok: #7fe7a6;
-    --input: #0b121a;
-    --chip: #1a2531;
-    --chip-text: #cfe2f1;
-    --shadow: 0 10px 35px rgba(0,0,0,.35);
-  }
-  .light {
-    --bg: #f6f9fc;
-    --panel: #ffffff;
-    --panel-2: #f1f5f9;
-    --text: #0f1720;
-    --muted: #475569;
-    --accent: #2563eb;
-    --accent-2: #16a34a;
-    --danger: #dc2626;
-    --warn: #d97706;
-    --ok: #059669;
-    --input: #ffffff;
-    --chip: #eef2f7;
-    --chip-text: #1f2a37;
-    --shadow: 0 10px 30px rgba(0,0,0,.08);
-  }
-  * { box-sizing: border-box; }
-  html, body { height: 100%; }
-  body {
-    margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
-    background: linear-gradient(120deg, var(--bg), #0a0f16 60%, var(--bg));
-    color: var(--text);
-  }
-  header {
-    position: sticky; top: 0; z-index: 10; backdrop-filter: blur(6px);
-    background: color-mix(in oklab, var(--bg), transparent 40%);
-    border-bottom: 1px solid color-mix(in oklab, var(--text), transparent 90%);
-  }
-  .wrap { max-width: 1300px; margin: 0 auto; padding: 20px; }
-  .row { display: grid; grid-template-columns: 1.1fr .9fr; gap: 20px; }
-  .card { background: var(--panel); border: 1px solid color-mix(in oklab, var(--text), transparent 85%); border-radius: 18px; box-shadow: var(--shadow); }
-  .card h2 { margin: 0; font-size: 18px; letter-spacing: .3px; color: var(--text); }
-  .card .head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border-bottom: 1px dashed color-mix(in oklab, var(--text), transparent 85%); }
-  .card .body { padding: 14px 16px; }
-  textarea, input, select, button { font: inherit; }
-  textarea, input, select { background: var(--input); color: var(--text); border: 1px solid color-mix(in oklab, var(--text), transparent 85%); border-radius: 12px; padding: 10px 12px; outline: none; }
-  textarea:focus, input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent), transparent 80%); }
-  textarea { width: 100%; min-height: 180px; resize: vertical; }
-  .btn { border: 1px solid transparent; border-radius: 12px; padding: 9px 12px; background: var(--accent); color: white; cursor: pointer; }
-  .btn.secondary { background: color-mix(in oklab, var(--accent), black 10%); }
-  .btn.ghost { background: transparent; border-color: color-mix(in oklab, var(--text), transparent 85%); color: var(--text); }
-  .btn.warn { background: var(--warn); color: #222; }
-  .btn.danger { background: var(--danger); }
-  .stack { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-  .grow { flex: 1; }
-  .muted { color: var(--muted); font-size: 13px; }
-  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
-  .pill { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius: 999px; background: var(--chip); color: var(--chip-text); font-size: 12px; }
-  .list { display: grid; gap: 10px; }
-  .ad { background: var(--panel-2); border: 1px solid color-mix(in oklab, var(--text), transparent 85%); border-radius: 14px; padding: 10px 12px; }
-  .ad-header { display:flex; align-items:center; justify-content: space-between; gap: 10px; }
-  .ad-header .tags { display:flex; gap:6px; flex-wrap:wrap; }
-  .ad .text { margin: 6px 0 0 0; white-space: pre-wrap; }
-  .ad .status { font-weight: 600; }
-  .ok { color: var(--ok); }
-  .warn-text { color: var(--warn); }
-  .bad { color: var(--danger); }
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .grid3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
-  details { background: var(--panel-2); border-radius: 12px; padding: 6px 8px; border: 1px dashed color-mix(in oklab, var(--text), transparent 85%); }
-  details > summary { cursor: pointer; color: var(--muted); }
-  code.inline { background: var(--chip); color: var(--chip-text); padding: 2px 6px; border-radius: 6px; }
-  .table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  .table th, .table td { padding: 8px 10px; border-bottom: 1px solid color-mix(in oklab, var(--text), transparent 90%); text-align: left; }
-  .kbd { border: 1px solid color-mix(in oklab, var(--text), transparent 80%); background: var(--chip); color: var(--chip-text); padding: 2px 6px; border-radius: 6px; font-size: 12px; }
-  .footer { color: var(--muted); font-size: 12px; margin-top: 10px; }
-  .hr { height:1px; background: color-mix(in oklab, var(--text), transparent 90%); margin: 10px 0; }
-  .caps { text-transform: uppercase; letter-spacing: .08em; font-weight: 700; font-size: 12px; color: var(--muted); }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeInvader Ad Formatter</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --card-bg: #2d2d2d;
+            --accent-color: #4a90e2;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --error-color: #f44336;
+            --border-color: #444;
+            --input-bg: #3a3a3a;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .light-mode {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --card-bg: #fff;
+            --accent-color: #2196f3;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --error-color: #f44336;
+            --border-color: #ddd;
+            --input-bg: #fff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: var(--accent-color);
+        }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            font-size: 1.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            color: var(--text-color);
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .primary-btn {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .secondary-btn {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .result-container {
+            margin-top: 20px;
+        }
+
+        .result {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 15px;
+            min-height: 100px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .settings-section {
+            margin-top: 40px;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .setting-item {
+            margin-bottom: 15px;
+        }
+
+        .setting-item label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .setting-item input, .setting-item select {
+            width: 100%;
+            padding: 10px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            color: var(--text-color);
+        }
+
+        .custom-items {
+            margin-top: 20px;
+        }
+
+        .custom-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .custom-item input {
+            flex: 1;
+        }
+
+        .custom-item button {
+            background: var(--error-color);
+            color: white;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .notification.success {
+            background: var(--success-color);
+        }
+
+        .notification.error {
+            background: var(--error-color);
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            border-bottom: 3px solid var(--accent-color);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .examples-section {
+            margin-top: 30px;
+        }
+
+        .example-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: var(--input-bg);
+            border-radius: 5px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .example-raw {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .example-result {
+            color: var(--success-color);
+        }
+    </style>
 </head>
 <body>
-<header>
-  <div class="wrap stack" style="justify-content: space-between;">
-    <div class="stack" style="gap:12px; align-items:center;">
-      <h1 style="margin:0; font-size:18px;">Lifeinvader Ad Formatter <span class="muted">(EN3)</span></h1>
-      <span class="pill">Night mode: <b>ON</b></span>
-      <button id="themeBtn" class="btn ghost" title="Toggle theme (dark/light)">Toggle Day mode</button>
-    </div>
-    <div class="stack">
-      <button id="exportBtn" class="btn ghost">Export config</button>
-      <label class="btn ghost" for="importConfig">Import config</label>
-      <input type="file" id="importConfig" accept="application/json" style="display:none" />
-    </div>
-  </div>
-</header>
+    <div class="container">
+        <header>
+            <h1>LifeInvader Ad Formatter</h1>
+            <button class="theme-toggle" id="themeToggle">Switch to Light Mode</button>
+        </header>
 
-<div class="wrap" style="margin-top: 10px;">
-  <div class="row">
-    <!-- LEFT: INPUT -->
-    <div class="card">
-      <div class="head">
-        <h2>Raw ads</h2>
-        <div class="stack">
-          <select id="splitMode">
-            <option value="auto" selected>Auto-split (numbers, new lines)</option>
-            <option value="line">Each line is one ad</option>
-          </select>
-          <button id="sampleBtn" class="btn secondary">Load sample</button>
-          <button id="formatBtn" class="btn">Format</button>
+        <div class="tabs">
+            <div class="tab active" data-tab="formatter">Ad Formatter</div>
+            <div class="tab" data-tab="settings">Settings</div>
+            <div class="tab" data-tab="examples">Examples</div>
         </div>
-      </div>
-      <div class="body">
-        <textarea id="raw" placeholder="Paste raw ads here... Support for numbered lists (1-, 1), bullets, or one per line."></textarea>
-        <div class="hr"></div>
-        <div class="grid2">
-          <div>
-            <div class="caps">Reference lists</div>
-            <div class="muted" style="margin:6px 0">Use these to validate car/clothing names & blacklist.</div>
-            <div class="stack">
-              <label class="btn ghost" for="uploadXL">Upload Cars/Clothing (.xlsx/.csv)</label>
-              <input type="file" id="uploadXL" accept=".xlsx,.csv" style="display:none" />
-              <label class="btn ghost" for="uploadTxt">Upload extra blacklist (.txt)</label>
-              <input type="file" id="uploadTxt" accept=".txt" style="display:none" />
+
+        <div class="tab-content active" id="formatter">
+            <div class="main-content">
+                <div class="card">
+                    <h2>Raw Ad Input</h2>
+                    <textarea id="rawAd" placeholder="Paste your raw ad here..."></textarea>
+                    <div class="button-group">
+                        <button class="primary-btn" id="formatBtn">Format Ad</button>
+                        <button class="secondary-btn" id="clearBtn">Clear</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Formatted Ad</h2>
+                    <div class="result-container">
+                        <div class="result" id="formattedAd">Your formatted ad will appear here...</div>
+                    </div>
+                    <div class="button-group">
+                        <button class="primary-btn" id="copyBtn">Copy to Clipboard</button>
+                    </div>
+                </div>
             </div>
-            <div class="muted" style="margin-top:8px">Or paste lists:</div>
-            <textarea id="manualList" placeholder="Optional: paste allowed vehicles/clothes, one per line"></textarea>
-          </div>
-          <div>
-            <div class="caps">Output template</div>
-            <div class="muted" style="margin:6px 0">Change how formatted ads look.</div>
-            <textarea id="template" style="min-height:160px">{{prefix}} {{body}}{{priceOrBudget}} {{tail}}{{categoryTag}}</textarea>
-            <div class="muted" style="margin-top:6px">Tokens: <code class="inline">{{prefix}}</code>, <code class="inline">{{body}}</code>, <code class="inline">{{priceOrBudget}}</code>, <code class="inline">{{tail}}</code>, <code class="inline">{{category}}</code>, <code class="inline">{{categoryTag}}</code></div>
-          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- RIGHT: OUTPUT -->
-    <div class="card">
-      <div class="head">
-        <h2>Results</h2>
-        <div class="stack">
-          <button id="copyAllBtn" class="btn secondary">Copy all</button>
-          <button id="clearBtn" class="btn ghost">Clear</button>
-        </div>
-      </div>
-      <div class="body">
-        <div id="stats" class="muted">No output yet.</div>
-        <div class="list" id="out"></div>
-      </div>
-    </div>
-  </div>
+        <div class="tab-content" id="settings">
+            <div class="card">
+                <h2>Customization Settings</h2>
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <label for="defaultCategory">Default Category</label>
+                        <select id="defaultCategory">
+                            <option value="auto">Auto</option>
+                            <option value="real-estate">Real Estate</option>
+                            <option value="business">Business</option>
+                            <option value="work">Work</option>
+                            <option value="dating">Dating</option>
+                            <option value="services">Services</option>
+                            <option value="discounts">Discounts</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
 
-  <!-- RULES / EDITORS -->
-  <div class="row" style="margin-top:20px; grid-template-columns: 1fr 1fr;">
-    <div class="card">
-      <div class="head">
-        <h2>Rule editor</h2>
-        <div class="stack">
-          <button id="addRuleBtn" class="btn ghost">Add mapping</button>
-          <button id="resetRulesBtn" class="btn warn">Reset to defaults</button>
-        </div>
-      </div>
-      <div class="body">
-        <table class="table" id="rulesTable">
-          <thead>
-            <tr><th>When text contains…</th><th>Change to…</th><th style="width:1%">&nbsp;</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-        <div class="footer">Mappings are case-insensitive and applied before classification/formatting.</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="head">
-        <h2>Categories & limits</h2>
-      </div>
-      <div class="body">
-        <div class="grid3">
-          <div class="ad"><div class="caps">Max items (Other)</div>
-            <input id="maxOther" type="number" value="3" min="1" />
-          </div>
-          <div class="ad"><div class="caps">Max vehicles / ad</div>
-            <input id="maxVehicles" type="number" value="1" min="1" />
-          </div>
-          <div class="ad"><div class="caps">Rent period words</div>
-            <input id="rentWords" value="per week,for,per day,days,day,week,weeks" />
-          </div>
-        </div>
-        <details style="margin-top:10px"><summary>Blacklisted & banned (click to view/edit)</summary>
-          <textarea id="blacklistBox" style="min-height:160px; margin-top:6px"></textarea>
-          <div class="hr"></div>
-          <div class="grid2">
-            <div>
-              <div class="caps">Banned party places</div>
-              <textarea id="bannedPlaces" style="min-height:120px"></textarea>
+                    <div class="setting-item">
+                        <label for="priceFormat">Price Format</label>
+                        <select id="priceFormat">
+                            <option value="negotiable">Negotiable (default)</option>
+                            <option value="specific">Use specific prices when provided</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="autoCapitalize">Auto Capitalize</label>
+                        <select id="autoCapitalize">
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="autoPunctuation">Auto Punctuation</label>
+                        <select id="autoPunctuation">
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="custom-items">
+                    <h3>Custom Items</h3>
+                    <p>Add custom items that should be recognized in ads:</p>
+                    <div id="customItemsList">
+                        <!-- Custom items will be added here dynamically -->
+                    </div>
+                    <div class="custom-item">
+                        <input type="text" id="newCustomItem" placeholder="Enter new item name">
+                        <button class="primary-btn" id="addCustomItem">Add</button>
+                    </div>
+                </div>
             </div>
-            <div>
-              <div class="caps">Official places (Capitalize)</div>
-              <textarea id="officialPlaces" style="min-height:120px"></textarea>
-            </div>
-          </div>
-        </details>
-      </div>
-    </div>
-  </div>
-
-  <div class="footer">
-    Built for EN3 Lifeinvader editors. Dark by default, day mode available. Your changes auto‑save to this browser.
-  </div>
-</div>
-
-<!-- Optional Excel reader (SheetJS). Falls back if offline. -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" integrity="sha256-QZk9zHcQ2fHnZrRuf0n7uXgV9yGX2mJ3y1GQxwhS5V8=" crossorigin="anonymous"></script>
-<script>
-(() => {
-  const $ = sel => document.querySelector(sel);
-  const $$ = sel => Array.from(document.querySelectorAll(sel));
-  const out = $('#out');
-  const stats = $('#stats');
-  const raw = $('#raw');
-  const template = $('#template');
-  const manualList = $('#manualList');
-  const uploadXL = $('#uploadXL');
-  const uploadTxt = $('#uploadTxt');
-  const rulesTable = $('#rulesTable tbody');
-  const blacklistBox = $('#blacklistBox');
-  const bannedPlaces = $('#bannedPlaces');
-  const officialPlaces = $('#officialPlaces');
-  const splitMode = $('#splitMode');
-
-  const defaults = {
-    template: '{{prefix}} {{body}}{{priceOrBudget}} {{tail}}{{categoryTag}}',
-    maxOther: 3,
-    maxVehicles: 1,
-    rentWords: 'per week,for,per day,days,day,week,weeks',
-    blacklist: [
-      'firearm','gun','pistol','ar-','ak-','ammo','ammunition','bulletproof','armor plate','weed','cannabis','cocaine','drug','ems mask','medical mask','covid mask','scanner','radar','balaclava','rope','head bag','usb with virus','lock pick','crowbar','troll','bandit mask','animal skin','satellite dish','barricade','anti-radar','engine block','air horn','grand coin','premium battlepass','battlepass','playboy', 'nationality','selling people','sexual','medkit','pills','tincture soup','license*offensive','gang hq','black market' 
-    ],
-    bannedPlaces: ['Mega Mall','Gang HQ','Black Market','LSPD','FIB','SAHP','EMS','Government','ghetto'],
-    officialPlaces: [ 'Vinewood Hills','Rockford Hills','Richman','Sandy Shores','Paleto Bay','Postal','Hospital','Capitol','Fire Station','Auto Fair','Bahama Mamas Bar','Tequi-la-la Bar','FIB','Hotel Spa Bar','Pacific Bluffs Country Club','Diamond Resort Bar','Vanilla Unicorn Bar','Church','Stock Exchange','Stadium','Chumash','Lifeinvader','Del Perro Pier','Del Perro Beach','Cayo Perico Island','Hotel','Raton Canyon','School','SAHP' ],
-    mappings: [
-      ['looking to buy','buying'],['looking to purchase','buying'],['buy house','buying a house'],['buy car','buying a car'],
-      ['max tuning','with full configuration'],['max config','with full configuration'],['fully upgraded','with full configuration'],
-      ['lvl3','with partial configuration'],['nearly max','with partial configuration'],['level 1','low quality'],['level 2','medium quality'],['level 3','high quality'],['level 4','max quality'],
-      ['body kit','with visual upgrades'],['body upgrades','with visual upgrades'],
-      ['turbo','turbo kit'],['drift tuning','drift kit'],['drift assistance','drift kit'],
-      ['luminous rims','luminous wheels'],['unique wheels','luminous wheels'],
-      ['crates','containers'],['cases','containers'],['spray cans','paint cans'],['spray balloons','paint cans'],['extras','of type'],
-      ['casino apartment','Casino penthouse'],
-    ],
-  };
-
-  // Load/save state
-  const state = JSON.parse(localStorage.getItem('lifmt_state')||'null') || { ...defaults };
-  const save = () => localStorage.setItem('lifmt_state', JSON.stringify({
-    template: template.value,
-    maxOther: +$('#maxOther').value,
-    maxVehicles: +$('#maxVehicles').value,
-    rentWords: $('#rentWords').value,
-    blacklist: textareaToList(blacklistBox.value),
-    bannedPlaces: textareaToList(bannedPlaces.value),
-    officialPlaces: textareaToList(officialPlaces.value),
-    mappings: tableToMappings(),
-  }));
-
-  // Init UI
-  template.value = state.template;
-  $('#maxOther').value = state.maxOther;
-  $('#maxVehicles').value = state.maxVehicles;
-  $('#rentWords').value = state.rentWords;
-  blacklistBox.value = state.blacklist.join('\n');
-  bannedPlaces.value = state.bannedPlaces.join('\n');
-  officialPlaces.value = state.officialPlaces.join('\n');
-  // Mappings table
-  const addRow = (a='',b='') => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td><input value="${escapeHtml(a)}" class="grow"/></td><td><input value="${escapeHtml(b)}" class="grow"/></td><td><button class="btn ghost del">✕</button></td>`;
-    rulesTable.appendChild(tr);
-    tr.querySelector('.del').onclick = () => { tr.remove(); save(); };
-    tr.querySelectorAll('input').forEach(i => i.addEventListener('input', save));
-  };
-  (state.mappings||defaults.mappings).forEach(m => addRow(m[0], m[1]));
-  $('#addRuleBtn').onclick = () => { addRow(); };
-  $('#resetRulesBtn').onclick = () => { if(confirm('Reset mappings/limits/blacklists to defaults?')) { localStorage.removeItem('lifmt_state'); location.reload(); } };
-
-  // Theme
-  const themeBtn = $('#themeBtn');
-  let isLight = false;
-  const applyTheme = () => document.body.classList.toggle('light', isLight);
-  themeBtn.onclick = () => { isLight = !isLight; applyTheme(); };
-  applyTheme();
-
-  // Import/export config
-  $('#exportBtn').onclick = () => {
-    const blob = new Blob([localStorage.getItem('lifmt_state')||JSON.stringify(defaults)], {type:'application/json'});
-    const a = Object.assign(document.createElement('a'), {href: URL.createObjectURL(blob), download: 'li-ad-formatter-config.json'});
-    document.body.appendChild(a); a.click(); a.remove();
-  };
-  $('#importConfig').onchange = (e) => {
-    const f = e.target.files[0]; if(!f) return;
-    const r = new FileReader();
-    r.onload = () => { try { localStorage.setItem('lifmt_state', r.result); location.reload(); } catch(err) { alert('Invalid config'); } };
-    r.readAsText(f);
-  };
-
-  // Helpers
-  function textareaToList(t) { return t.split(/\n+/).map(s=>s.trim()).filter(Boolean); }
-  function tableToMappings() { return Array.from(rulesTable.querySelectorAll('tr')).map(tr=>Array.from(tr.querySelectorAll('input')).map(i=>i.value.trim())); }
-  function escapeHtml(s){ return s.replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
-  function capFirst(s){ return s.replace(/^\s*([a-z])/, (m,c)=>c.toUpperCase()); }
-  const num = {
-    toMoney(n){
-      // format like 1.500.000 or X Million rules
-      if (!isFinite(+n)) return n;
-      const abs = Math.abs(+n);
-      if (abs >= 1_000_000 && abs % 1_000_000 === 0) {
-        return (abs/1_000_000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' Million';
-      }
-      return Math.round(abs).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    },
-    parseMoney(raw){
-      if(!raw) return null;
-      let s = raw.replace(/[, ]/g,'').toLowerCase();
-      s = s.replace(/(each|respectively|per|week|day|days|weeks)$/,'').trim();
-      const k = /([\d.]+)k\b/.exec(s); if(k) return Math.round(parseFloat(k[1])*1000);
-      const m = /([\d.]+)m\b/.exec(s); if(m) return Math.round(parseFloat(m[1])*1_000_000);
-      const dm = /([\d.]+)\s*million/.exec(s); if(dm) return Math.round(parseFloat(dm[1])*1_000_000);
-      const plain = s.match(/[\d.]+/g); if(plain){ return Math.round(parseFloat(plain.join(''))); }
-      return null;
-    }
-  };
-
-  // Classification & transformation rules (condensed)
-  const RULES = {
-    actions: ['buying','selling','trading','selling or trading','renting','renting out','looking'],
-    categories: ['Real Estate','Auto','Business','Discounts','Work','Dating','Services','Other'],
-    partyAllowed: ['house','apartment','beach','yacht','bahama mamas bar','tequi-la-la bar','stadium','diamond resort bar','arena','raton canyon','vanilla unicorn bar','hotel spa bar'],
-  };
-
-  // Dynamic references loaded by user
-  let allowList = new Set();
-
-  // File uploads for allow list & extra blacklist
-  uploadXL.addEventListener('change', async (e) => {
-    const f = e.target.files[0]; if(!f) return;
-    if (/\.csv$/i.test(f.name)) {
-      const text = await f.text();
-      text.split(/\n+/).forEach(line=>{ if(line.trim()) allowList.add(line.trim()); });
-    } else {
-      if (!window.XLSX) { alert('XLSX library not loaded. Use CSV or paste manually.'); return; }
-      const data = await f.arrayBuffer();
-      const wb = XLSX.read(data); const ws = wb.Sheets[wb.SheetNames[0]]; const rows = XLSX.utils.sheet_to_json(ws, {header:1});
-      rows.flat().forEach(v => { const s = String(v||'').trim(); if(s) allowList.add(s); });
-    }
-    alert(`Loaded ${allowList.size} reference names.`);
-  });
-  uploadTxt.addEventListener('change', async (e) => {
-    const f = e.target.files[0]; if(!f) return;
-    const text = await f.text();
-    const items = textareaToList(text);
-    const cur = textareaToList(blacklistBox.value);
-    blacklistBox.value = [...new Set(cur.concat(items))].join('\n');
-    save();
-  });
-
-  // SAMPLE
-  $('#sampleBtn').onclick = () => {
-    raw.value = `1- I want to but a penthouse. My budget is 20 mil\n2- selling house 71 and 1008. Price nego\n3- buying a biz. Budget 150 mil\n4- selling state object in city.\n5- looking Anindo winslow\n6- i am a lawyer, i need work\n7- i want to plant solar\n8- sell supra, price 10 mil\n9- buying p1. Budget nego\n10- party at fib\n11- buying seed bulk. 2500 each`; };
-
-  // MAIN: format
-  $('#formatBtn').onclick = () => {
-    const rules = collectRules();
-    const entries = splitRaw(raw.value, splitMode.value);
-    render(processAll(entries, rules));
-    save();
-  };
-  $('#clearBtn').onclick = () => { raw.value=''; out.innerHTML=''; stats.textContent='No output yet.'; };
-  $('#copyAllBtn').onclick = () => copyAll();
-
-  function collectRules(){
-    return {
-      template: template.value,
-      maxOther: +$('#maxOther').value,
-      maxVehicles: +$('#maxVehicles').value,
-      rentWords: $('#rentWords').value.split(',').map(s=>s.trim()),
-      mappings: tableToMappings(),
-      blacklist: new Set(textareaToList(blacklistBox.value).map(s=>s.toLowerCase())),
-      bannedPlaces: textareaToList(bannedPlaces.value),
-      officialPlaces: textareaToList(officialPlaces.value),
-      allowList: new Set([...allowList, ...textareaToList(manualList.value)])
-    };
-  }
-
-  function splitRaw(text, mode){
-    if(!text.trim()) return [];
-    if(mode==='line') return text.split(/\n+/).map(s=>s.trim()).filter(Boolean);
-    // auto: split by numbered/bulleted lines or blank lines
-    const lines = text.split(/\n+/);
-    const out = []; let cur = '';
-    const isStart = (s) => /^\s*(?:\d+\s*[\).\-]|[-•])\s*/.test(s);
-    for(const line of lines){
-      if(isStart(line) && cur){ out.push(cur.trim()); cur = line.replace(/^\s*(?:\d+\s*[\).\-]|[-•])\s*/, ''); }
-      else { cur += (cur? ' ' : '') + line.replace(/^\s*(?:\d+\s*[\).\-]|[-•])\s*/, ''); }
-    }
-    if(cur) out.push(cur.trim());
-    return out.filter(Boolean);
-  }
-
-  function applyMappings(s, mappings){
-    let out = s;
-    mappings.forEach(([a,b]) => {
-      if(!a) return;
-      out = out.replace(new RegExp(a.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), 'gi'), b);
-    });
-    return out;
-  }
-
-  function processAll(arr, rules){
-    const results = [];
-    arr.forEach((raw, idx) => {
-      const r0 = raw.trim();
-      let s = applyMappings(r0, rules.mappings).replace(/\s+/g,' ').trim();
-      const original = s;
-
-      // Determine action
-      let action = (s.match(/\b(buying|selling or trading|selling|trading|renting out|renting|looking)\b/i)||[])[1];
-      if(!action){
-        if(/^looking for/i.test(s)) action = 'looking';
-        else if(/^rent/i.test(s)) action = 'renting out';
-        else if(/\bbuy\b|\bpurchase\b/i.test(s)) action = 'buying';
-        else if(/\bsell\b/i.test(s)) action = 'selling';
-      }
-
-      // Blacklist quick check
-      const blackHit = blacklistHit(s, rules.blacklist);
-      if(blackHit) {
-        results.push(reject(`Rejected — Cannot promote illegal/blacklisted item: "${blackHit}".`));
-        return;
-      }
-
-      // Normalize price/budget strings
-      const priceInfo = parsePriceOrBudget(s, action);
-      s = priceInfo.cleaned;
-
-      // Category guess & structured build
-      const info = classifyAndBuild(s, action, rules, priceInfo);
-
-      // Final template
-      const prefix = capFirst(info.prefix);
-      const priceOrBudget = info.priceStr ? ` ${info.priceLabel}: ${info.priceStr}` : ` ${info.priceLabel}: Negotiable`;
-      const body = info.body.endsWith('.') ? info.body.slice(0,-1) : info.body; // avoid double period before price
-      const tail = info.tail ? (body.endsWith('.')? '' : '.') + ' ' + info.tail : (body.endsWith('.')? '' : '.');
-      const categoryTag = info.category ? ` (${info.category})` : '';
-      const tpl = rules.template
-        .replace(/\{\{prefix\}\}/g, prefix)
-        .replace(/\{\{body\}\}/g, body)
-        .replace(/\{\{priceOrBudget\}\}/g, priceOrBudget)
-        .replace(/\{\{tail\}\}/g, tail)
-        .replace(/\{\{category\}\}/g, info.category || '')
-        .replace(/\{\{categoryTag\}\}/g, categoryTag);
-
-      // Edge punctuation: if ends with number, remove trailing dot.
-      const finalText = fixEndDot(tpl);
-
-      results.push({ status: info.rejected ? 'Rejected' : 'OK', category: info.category, text: finalText, reasons: info.reasons, tags: info.tags });
-    });
-    return results;
-  }
-
-  function render(items){
-    out.innerHTML = '';
-    let ok=0, rej=0;
-    items.forEach((it, i) => {
-      if(it.status==='OK') ok++; else rej++;
-      const div = document.createElement('div');
-      div.className = 'ad';
-      const tagEls = it.tags?.map(t=>`<span class="pill">${escapeHtml(t)}</span>`).join(' ') || '';
-      const reasons = it.reasons?.length ? `<div class="muted">${it.reasons.map(r=>`• ${escapeHtml(r)}`).join('<br>')}</div>` : '';
-      div.innerHTML = `
-        <div class="ad-header">
-          <div class="status ${it.status==='OK'?'ok':'bad'}">${it.status}</div>
-          <div class="tags">${tagEls}</div>
-          <div class="muted">${it.category||''}</div>
         </div>
-        <div class="text mono">${escapeHtml(it.text)}</div>
-        ${reasons}
-        <div class="stack" style="margin-top:8px; justify-content:flex-end">
-          <button class="btn ghost" data-copy>Copy</button>
-          <button class="btn ghost" data-delete>Delete</button>
-        </div>`;
-      div.querySelector('[data-copy]').onclick = () => navigator.clipboard.writeText(it.text);
-      div.querySelector('[data-delete]').onclick = () => div.remove();
-      out.appendChild(div);
-    });
-    stats.textContent = `${ok} formatted, ${rej} rejected`;
-  }
 
-  function copyAll(){
-    const texts = Array.from(out.querySelectorAll('.text')).map(n=>n.textContent);
-    if(!texts.length) return;
-    navigator.clipboard.writeText(texts.join('\n'));
-    alert('Copied all formatted ads.');
-  }
+        <div class="tab-content" id="examples">
+            <div class="card">
+                <h2>Ad Formatting Examples</h2>
+                <div class="examples-section">
+                    <div class="example-item">
+                        <div class="example-raw">Raw: selling house 71 and 1008. Price nego</div>
+                        <div class="example-result">Result: Cannot sell two houses at a time.</div>
+                    </div>
+                    <div class="example-item">
+                        <div class="example-raw">Raw: buying a biz. Budget 150 mil</div>
+                        <div class="example-result">Result: Buying a private business. Budget: $150 Million.</div>
+                    </div>
+                    <div class="example-item">
+                        <div class="example-raw">Raw: selling supra, price 10 mil</div>
+                        <div class="example-result">Result: Selling "Karin Supra A80". Price: $10 Million.</div>
+                    </div>
+                    <div class="example-item">
+                        <div class="example-raw">Raw: selling chiron with max tuning parts, full chip tuning, modification, insurance, turbo and drift kit for 30 million</div>
+                        <div class="example-result">Result: Selling "Truffade Chiron" with full configuration, visual upgrades, insurance, turbo kit and drift kit. Price: $30 Million.</div>
+                    </div>
+                    <div class="example-item">
+                        <div class="example-raw">Raw: buying p1. Budget nego</div>
+                        <div class="example-result">Result: Cannot buy P1 car.</div>
+                    </div>
+                    <div class="example-item">
+                        <div class="example-raw">Raw: i need cocain. 8k each.</div>
+                        <div class="example-result">Result: Illegal item cannot be bought.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  function blacklistHit(s, set){
-    const low = s.toLowerCase();
-    for(const w of set){
-      if(w.includes('*')){ // simple wildcard prefix
-        const re = new RegExp('^'+w.replace('*','.*')+'$');
-        if(re.test(low)) return w;
-      } else if(low.includes(w)) return w;
-    }
-    return null;
-  }
+    <div class="notification" id="notification"></div>
 
-  function parsePriceOrBudget(s, action){
-    // Extract numbers and normalize, but do not force if rent/context demands.
-    let price = null; let label = 'Price';
-    if(/\bbudget\b/i.test(s) || /\bbuying\b/i.test(action||'')) label = 'Budget';
-    if(/\b(budget|price|cost|each|respectively)\b/i.test(s)){
-      const m = s.match(/\$?\s*([\d.,]+\s*(?:m|k|million)?)(?:\s*(each|respectively))?/i);
-      if(m){ price = num.parseMoney(m[1]); }
-    }
-    // Remove raw price words for cleaner body
-    const cleaned = s.replace(/\s*(price|budget)\s*[:\-]?\s*\$?[\d.,]+\s*(?:m|k|million)?\b/ig,'').replace(/\s{2,}/g,' ').trim();
-    return { cleaned, price, label };
-  }
+    <script>
+        // DOM Elements
+        const rawAdInput = document.getElementById('rawAd');
+        const formattedAdOutput = document.getElementById('formattedAd');
+        const formatBtn = document.getElementById('formatBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const themeToggle = document.getElementById('themeToggle');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const notification = document.getElementById('notification');
+        const addCustomItemBtn = document.getElementById('addCustomItem');
+        const newCustomItemInput = document.getElementById('newCustomItem');
+        const customItemsList = document.getElementById('customItemsList');
 
-  function fixEndDot(t){
-    return t.replace(/\s*\.$/, (m)=>{ return /\d\.?$/.test(t.trim()) ? '' : '.'; });
-  }
+        // Data storage
+        let customItems = JSON.parse(localStorage.getItem('customItems')) || [];
+        let settings = JSON.parse(localStorage.getItem('settings')) || {
+            defaultCategory: 'auto',
+            priceFormat: 'negotiable',
+            autoCapitalize: 'yes',
+            autoPunctuation: 'yes'
+        };
 
-  function classifyAndBuild(s, action, rules, priceInfo){
-    const res = { rejected:false, reasons:[], tags:[], category:null, prefix:'', body:'', tail:'', priceLabel: priceInfo.label, priceStr: priceInfo.price? ('$'+num.toMoney(priceInfo.price)) : null };
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+            renderCustomItems();
+            setupEventListeners();
+        });
 
-    // Normalize capitalization for leading word
-    if(!action) action = 'selling';
-    if(action==='looking') res.prefix = 'Looking for';
-    else res.prefix = action.split(' ').map(w=>capFirst(w)).join(' ');
+        // Event Listeners
+        function setupEventListeners() {
+            formatBtn.addEventListener('click', formatAd);
+            clearBtn.addEventListener('click', clearInput);
+            copyBtn.addEventListener('click', copyToClipboard);
+            themeToggle.addEventListener('click', toggleTheme);
+            addCustomItemBtn.addEventListener('click', addCustomItem);
+            
+            // Tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    switchTab(tabId);
+                });
+            });
 
-    // Quick category hints
-    const low = s.toLowerCase();
-    const isParty = /\bparty\b|wedding/.test(low);
-    const isWork = /\bhiring\b|\bjob\b|looking for work|lawyer looking|dj looking|photographer|bodyguard|singer|assistant|driver/.test(low);
-    const isBusiness = /store|shop|company|service station|state object|car sharing|tattoo|juice|hair salon|bar\b|jewelry|gas station|plantation|electric station|ammunition|atm\b|warehouse|freight train|chip tuning/.test(low);
-    const isAuto = /".*"|\b(uber|karin|benefactor|annis|grotti|obey|pfister|toros|tundra|swift|seashark|chiron|gls600|r8|gtr|corvette|boat|helicopter|plane|motorcycle|bike|monowheel)\b/i.test(s);
-    const isRealEstate = /house|apartment|penthouse|mansion|casino|garage|\bg\.s\.|w\.h\.|helipad|garden/.test(low);
-    const isDiscount = /%\s*off|discount|\boff\b\s*\d+%/.test(low);
+            // Settings change listeners
+            document.getElementById('defaultCategory').addEventListener('change', saveSettings);
+            document.getElementById('priceFormat').addEventListener('change', saveSettings);
+            document.getElementById('autoCapitalize').addEventListener('change', saveSettings);
+            document.getElementById('autoPunctuation').addEventListener('change', saveSettings);
+        }
 
-    // Dating logic (must be specific allowed phrases)
-    const isDating = /^\s*looking for\b/i.test(s) && (/\b(boyfriend|girlfriend|wife|husband|family|family members|casino poker players)\b/i.test(s) || /\b[A-Z][a-z]+\s+[A-Z][a-z]+\b/.test(s));
+        // Tab switching
+        function switchTab(tabId) {
+            tabs.forEach(tab => {
+                if (tab.getAttribute('data-tab') === tabId) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
 
-    // Default Other
-    res.category = 'Other';
-    if(isParty) res.category = 'Other';
-    if(isWork) res.category = 'Work';
-    if(isBusiness) res.category = 'Business';
-    if(isAuto) res.category = 'Auto';
-    if(isRealEstate) res.category = 'Real Estate';
-    if(isDiscount) res.category = 'Discounts';
-    if(isDating) res.category = 'Dating';
+            tabContents.forEach(content => {
+                if (content.id === tabId) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+        }
 
-    // Specific handlers
-    switch(res.category){
-      case 'Real Estate': handleRealEstate(); break;
-      case 'Auto': handleAuto(); break;
-      case 'Business': handleBusiness(); break;
-      case 'Work': handleWork(); break;
-      case 'Dating': handleDating(); break;
-      case 'Discounts': handleDiscounts(); break;
-      case 'Services': handleServices(); break;
-      default: handleOther();
-    }
+        // Theme toggle
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            if (document.body.classList.contains('light-mode')) {
+                themeToggle.textContent = 'Switch to Dark Mode';
+            } else {
+                themeToggle.textContent = 'Switch to Light Mode';
+            }
+        }
 
-    return res;
+        // Load settings
+        function loadSettings() {
+            document.getElementById('defaultCategory').value = settings.defaultCategory;
+            document.getElementById('priceFormat').value = settings.priceFormat;
+            document.getElementById('autoCapitalize').value = settings.autoCapitalize;
+            document.getElementById('autoPunctuation').value = settings.autoPunctuation;
+        }
 
-    // --- Handlers ---
-    function handleRealEstate(){
-      // number symbol №, features order: garden, g.s., w.h., custom interior, insurance, helipad, others, views, location
-      const noMultiNum = /(house|apartment|penthouse|mansion)[^\d]*(?:№|no\.?|#)\s*(\d+)/i;
-      const multi = /(\d+)\s+houses/i;
-      // Normalize location capitalization
-      for(const loc of rules.officialPlaces){
-        const re = new RegExp(loc.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), 'i');
-        s = s.replace(re, loc);
-      }
-      let m;
-      if(multi.test(s)) { res.body = capFirst(s.replace(/price.*$/i,'').trim()); res.tags.push('Multi'); }
-      else if((m = noMultiNum.exec(s))) {
-        const numId = m[2];
-        const type = m[1].toLowerCase().includes('apart')? 'apartment' : 'house';
-        const feats = [];
-        if(/garden/.test(low)) feats.push('a garden');
-        const gs = s.match(/(\d{1,2})\s*(?:gs|g\.?s\.?)|\b(2|5|9|25)\s*g(?:\.?s\.?)?/i); if(gs){ feats.push(`${gs[1]||gs[2]} g.s.`); }
-        const wh = s.match(/(\d)\s*w\.?h\.?/i); if(wh){ feats.push(`${wh[1]} w.h.`); }
-        if(/custom interior|furnished|interior/.test(low)) feats.push('custom interior');
-        if(/insurance/.test(low)) feats.push('insurance');
-        if(/helipad/.test(low)) feats.push('helipad');
-        if(/swimming pool/.test(low)) feats.push('swimming pool');
-        if(/tennis court/.test(low)) feats.push('tennis court');
-        if(/driveway/.test(low)) feats.push('long driveway');
-        if(/view|views/.test(low)) feats.push('nice views');
-        const loc = (s.match(/in\s+([A-Z][A-Za-z\s]+)$/)||[])[1];
-        let featStr = feats.length? ` with ${feats.slice(0,-1).join(', ')}${feats.length>1?', and ':''}${feats[feats.length-1]}.` : '.';
-        res.body = `Selling ${type} №${numId}${featStr}${loc? ' In '+loc+'.':''}`.replace(/\.\./g,'.');
-      } else {
-        // No number: add a/an before type
-        const type = /apartment/.test(low)? 'an apartment' : 'a house';
-        const feats = [];
-        if(/garden/.test(low)) feats.push('a garden');
-        const gs = s.match(/(\d{1,2})\s*(?:gs|g\.?s\.?)|\b(2|5|9|25)\s*g(?:\.?s\.?)?/i); if(gs){ feats.push(`${gs[1]||gs[2]} g.s.`); }
-        const wh = s.match(/(\d)\s*w\.?h\.?/i); if(wh){ feats.push(`${wh[1]} w.h.`); }
-        if(/custom interior|furnished|interior/.test(low)) feats.push('custom interior');
-        if(/insurance/.test(low)) feats.push('insurance');
-        if(/helipad/.test(low)) feats.push('helipad');
-        const featStr = feats.length? ` with ${feats.slice(0,-1).join(', ')}${feats.length>1?', and ':''}${feats[feats.length-1]}.` : '.';
-        res.body = `${capFirst(res.prefix==='Buying'?'Buying':'Selling')} ${type}${featStr}`;
-      }
-      res.prefix = res.prefix.startsWith('Renting')? 'Renting out' : res.prefix.split(' ')[0];
-      if(/rent|per week|per day/.test(low)) res.priceLabel = res.prefix==='Renting out'? 'Rent' : res.priceLabel;
-    }
+        // Save settings
+        function saveSettings() {
+            settings.defaultCategory = document.getElementById('defaultCategory').value;
+            settings.priceFormat = document.getElementById('priceFormat').value;
+            settings.autoCapitalize = document.getElementById('autoCapitalize').value;
+            settings.autoPunctuation = document.getElementById('autoPunctuation').value;
+            
+            localStorage.setItem('settings', JSON.stringify(settings));
+            showNotification('Settings saved successfully!', 'success');
+        }
 
-    function handleAuto(){
-      // Ensure quotes and order of features
-      const nameMatch = s.match(/"([^"]+)"/);
-      let name = nameMatch? nameMatch[1] : (s.match(/\b([A-Z][\w-]+(?:\s+[A-Z0-9][\w()\-]+)*)\b/)||[])[1] || 'car';
-      // Validate against allowList if provided
-      if(allowList.size && !Array.from(allowList).some(v=>v.toLowerCase()===name.toLowerCase())){
-        // try to smart-capitalize common forms, otherwise keep
-      }
-      name = name.replace(/\s+/g,' ').trim();
-      if(!/^"/.test(s)) name = `"${capFirst(name)}"`;
+        // Custom items management
+        function addCustomItem() {
+            const itemName = newCustomItemInput.value.trim();
+            if (itemName) {
+                customItems.push(itemName);
+                localStorage.setItem('customItems', JSON.stringify(customItems));
+                renderCustomItems();
+                newCustomItemInput.value = '';
+                showNotification('Custom item added!', 'success');
+            }
+        }
 
-      const features = [];
-      if(/full config|with full configuration/i.test(s) || /max tuning|fully max/i.test(s)) features.push('with full configuration');
-      else if(/partial config|with partial configuration|chip|tuning/i.test(s)) features.push('with partial configuration');
-      if(/visual/i.test(s)) features.push('visual upgrades');
-      if(/luminous wheel|luminous rim|unique wheel|luminous wheels/i.test(s)) features.push('luminous wheels');
-      if(/insurance/i.test(s)) features.push('insurance');
-      if(/turbo\b/i.test(s)) features.push('turbo kit');
-      if(/drift\b/i.test(s)) features.push('drift kit');
-      const featStr = features.length? ` ${features[0].startsWith('with')?features[0]:('with '+features[0])}${features.slice(1).length? ', '+features.slice(1,-1).join(', ') + (features.length>1?', and ':'') + features.slice(-1):''}` : '';
+        function removeCustomItem(index) {
+            customItems.splice(index, 1);
+            localStorage.setItem('customItems', JSON.stringify(customItems));
+            renderCustomItems();
+            showNotification('Custom item removed!', 'success');
+        }
 
-      // Enforce one vehicle unless trading
-      if(res.prefix.toLowerCase()==='selling or trading' || /\btrading\b/i.test(s)) {
-        // OK to include two vehicles, but keep format "A" for "B"
-        const trade = s.match(/for\s+"([^"]+)"/i);
-        res.body = `"${name.replace(/"/g,'')}"${featStr}${trade? ` for "${trade[1]}"`:''}`;
-      } else {
-        res.body = `${name}${featStr}`;
-      }
-    }
+        function renderCustomItems() {
+            customItemsList.innerHTML = '';
+            customItems.forEach((item, index) => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'custom-item';
+                itemElement.innerHTML = `
+                    <input type="text" value="${item}" readonly>
+                    <button class="remove-btn" data-index="${index}">Remove</button>
+                `;
+                customItemsList.appendChild(itemElement);
+            });
 
-    function handleBusiness(){
-      // Normalize canonical names and numbers
-      let body = s;
-      body = body.replace(/(gun|weapon) store/ig,'Ammunition Store');
-      body = body.replace(/barber/ig,'Hair salon');
-      body = body.replace(/drug lab/ig,'Burger shop');
-      // turn "№123" when any number follows a business
-      body = body.replace(/(Store|shop|salon|studio|company|station|workshop|object|business)\s*(?:#|no\.?|№)?\s*(\d+)/ig, (m,kind,num)=> `${kind} №${num}`);
-      res.body = capFirst(body.replace(/price.*$/i,'').trim());
-    }
+            // Add event listeners to remove buttons
+            document.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    removeCustomItem(index);
+                });
+            });
+        }
 
-    function handleWork(){
-      res.body = capFirst(s.replace(/\b(level|lvl)\b\s*(\d+)/ig, (m,_l,n)=> `${n} years experience`));
-      res.priceLabel = /hiring|salary|awarding/i.test(s)? 'Salary' : res.priceLabel;
-    }
+        // Notification system
+        function showNotification(message, type = 'success') {
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
 
-    function handleDating(){
-      // Require full name when person lookup not generic
-      if(/looking for\s+[A-Za-z]+$/.test(s)){
-        res.rejected = true; res.reasons.push('Please provide full first and last name.');
-      }
-      res.body = capFirst(s.replace(/^looking\s+for\s+/i,'Looking for '));
-    }
+        // Clear input
+        function clearInput() {
+            rawAdInput.value = '';
+            formattedAdOutput.textContent = 'Your formatted ad will appear here...';
+        }
 
-    function handleDiscounts(){ res.body = capFirst(s); }
-    function handleServices(){ res.body = capFirst(s); }
+        // Copy to clipboard
+        function copyToClipboard() {
+            const text = formattedAdOutput.textContent;
+            if (text && text !== 'Your formatted ad will appear here...') {
+                navigator.clipboard.writeText(text)
+                    .then(() => showNotification('Copied to clipboard!', 'success'))
+                    .catch(err => showNotification('Failed to copy: ' + err, 'error'));
+            }
+        }
 
-    function handleOther(){
-      // Enforce max 3 items
-      const commas = s.split(/,| and /i).map(x=>x.trim()).filter(Boolean);
-      if(commas.length>rules.maxOther){
-        res.rejected = true; res.reasons.push(`Cannot advertise more than ${rules.maxOther} items at a time.`);
-      }
-      // Party banned places
-      if(/\bparty\b/i.test(s)){
-        for(const place of rules.bannedPlaces){ if(new RegExp(place,'i').test(s)){ res.rejected=true; res.reasons.push('We do not promote this place for parties.'); break; } }
-      }
-      res.body = capFirst(s);
-    }
-  }
+        // Main formatting function
+        function formatAd() {
+            const rawText = rawAdInput.value.trim();
+            if (!rawText) {
+                showNotification('Please enter an ad to format', 'error');
+                return;
+            }
 
-})();
-</script>
+            // Process the ad based on the rules
+            let formatted = processAd(rawText);
+            formattedAdOutput.textContent = formatted;
+        }
+
+        // Ad processing logic
+        function processAd(rawText) {
+            // Convert to lowercase for easier processing
+            let text = rawText.toLowerCase();
+            
+            // Check for illegal items
+            if (containsIllegalItems(text)) {
+                return "Illegal item cannot be advertised.";
+            }
+            
+            // Determine category and process accordingly
+            if (isRealEstateAd(text)) {
+                return processRealEstateAd(text);
+            } else if (isAutoAd(text)) {
+                return processAutoAd(text);
+            } else if (isBusinessAd(text)) {
+                return processBusinessAd(text);
+            } else if (isWorkAd(text)) {
+                return processWorkAd(text);
+            } else if (isDatingAd(text)) {
+                return processDatingAd(text);
+            } else if (isServicesAd(text)) {
+                return processServicesAd(text);
+            } else if (isDiscountsAd(text)) {
+                return processDiscountsAd(text);
+            } else {
+                return processOtherAd(text);
+            }
+        }
+
+        // Helper functions for ad processing
+        function containsIllegalItems(text) {
+            const illegalTerms = [
+                'cocain', 'weed', 'cannabis', 'firearm', 'gun', 'ammo', 'bulletproof',
+                'armor plate', 'ems mask', 'surgical mask', 'covid mask', 'scanner',
+                'radar', 'balaclava', 'rope', 'head bag', 'usb with virus', 'lock pick',
+                'crowbar', 'troll', 'bandit mask', 'animal skin', 'satellite dish',
+                'barricade', 'anti-radar', 'engine block', 'air horn', 'drug', 'grand coin',
+                'battlepass', 'hype body', 'branded armor', 'gang', 'nationality'
+            ];
+            
+            return illegalTerms.some(term => text.includes(term));
+        }
+
+        function isRealEstateAd(text) {
+            return text.includes('house') || text.includes('apartment') || 
+                   text.includes('penthouse') || text.includes('mansion') ||
+                   text.includes('property') || text.includes('real estate');
+        }
+
+        function isAutoAd(text) {
+            return text.includes('car') || text.includes('vehicle') || 
+                   text.includes('motorcycle') || text.includes('bike') ||
+                   text.includes('boat') || text.includes('plane') || 
+                   text.includes('helicopter') || text.includes('auto');
+        }
+
+        function isBusinessAd(text) {
+            return text.includes('business') || text.includes('biz') || 
+                   text.includes('store') || text.includes('shop') ||
+                   text.includes('station') || text.includes('company');
+        }
+
+        function isWorkAd(text) {
+            return text.includes('work') || text.includes('job') || 
+                   text.includes('hire') || text.includes('hiring') ||
+                   text.includes('salary') || text.includes('worker');
+        }
+
+        function isDatingAd(text) {
+            return text.includes('looking for') || text.includes('searching for') ||
+                   text.includes('need girlfriend') || text.includes('need boyfriend') ||
+                   text.includes('wife') || text.includes('husband') || 
+                   text.includes('family') || text.includes('date');
+        }
+
+        function isServicesAd(text) {
+            return text.includes('service') || text.includes('template') ||
+                   (text.includes('bar') && !text.includes('strip')) ||
+                   text.includes('hair salon') || text.includes('taxi');
+        }
+
+        function isDiscountsAd(text) {
+            return text.includes('discount') || text.includes('off') || 
+                   text.includes('%') || text.includes('sale');
+        }
+
+        // Category-specific processing functions
+        function processRealEstateAd(text) {
+            // Extract key information
+            let result = '';
+            const isBuying = text.includes('buy') || text.includes('purchase');
+            const isSelling = text.includes('sell');
+            const isRenting = text.includes('rent');
+            
+            // Extract property number if exists
+            const numberMatch = text.match(/(?:№|no|number|#)\s*(\d+)/i);
+            const propertyNumber = numberMatch ? numberMatch[1] : null;
+            
+            // Extract price/budget
+            const priceMatch = text.match(/(\d+(?:\.\d+)?)\s*(?:mil|million|m|k|thousand)/i);
+            let price = priceMatch ? `$${priceMatch[1]} Million` : 'Negotiable';
+            
+            // Start building the ad
+            if (isRenting) {
+                if (text.includes('renting out')) {
+                    result = 'Renting out ';
+                } else {
+                    result = 'Renting ';
+                }
+            } else if (isBuying) {
+                result = 'Buying ';
+            } else if (isSelling) {
+                result = 'Selling ';
+            } else {
+                result = 'Selling ';
+            }
+            
+            // Add property type and number
+            if (text.includes('apartment')) {
+                if (propertyNumber) {
+                    result += `apartment №${propertyNumber}`;
+                } else {
+                    result += 'an apartment';
+                }
+            } else if (text.includes('penthouse')) {
+                if (text.includes('casino')) {
+                    result += 'Casino penthouse';
+                } else if (propertyNumber) {
+                    result += `penthouse №${propertyNumber}`;
+                } else {
+                    result += 'a penthouse';
+                }
+            } else if (text.includes('mansion')) {
+                if (propertyNumber) {
+                    result += `mansion №${propertyNumber}`;
+                } else {
+                    result += 'a mansion';
+                }
+            } else {
+                if (propertyNumber) {
+                    result += `house №${propertyNumber}`;
+                } else {
+                    result += 'a house';
+                }
+            }
+            
+            // Add features
+            const features = [];
+            if (text.includes('garden')) features.push('a garden');
+            if (text.includes('25 garage') || text.includes('25 g.s')) features.push('25 g.s.');
+            if (text.includes('9 garage') || text.includes('9 g.s')) features.push('9 g.s.');
+            if (text.includes('5 garage') || text.includes('5 g.s')) features.push('5 g.s.');
+            if (text.includes('2 garage') || text.includes('2 g.s')) features.push('2 g.s.');
+            if (text.includes('warehouse') || text.includes('w.h')) {
+                const whMatch = text.match(/(\d+)\s*(?:warehouse|w\.h)/i);
+                if (whMatch) features.push(`${whMatch[1]} w.h.`);
+            }
+            if (text.includes('custom interior') || text.includes('furnished')) features.push('custom interior');
+            if (text.includes('insurance')) features.push('insurance');
+            if (text.includes('helipad')) features.push('helipad');
+            if (text.includes('swimming pool')) features.push('swimming pool');
+            if (text.includes('tennis court')) features.push('tennis court');
+            if (text.includes('driveway')) features.push('long driveway');
+            if (text.includes('backyard')) features.push('spacious backyard');
+            if (text.includes('view')) features.push('nice views');
+            
+            // Add location if specified
+            let location = '';
+            if (text.includes('vinewood')) location = ' in Vinewood Hills';
+            if (text.includes('mirror park')) location = ' in Mirror Park';
+            if (text.includes('rockford')) location = ' in Rockford Hills';
+            if (text.includes('richman')) location = ' in Richman';
+            if (text.includes('sandy shores')) location = ' in Sandy Shores';
+            if (text.includes('paleto')) location = ' in Paleto Bay';
+            if (text.includes('city')) location = ' in the city';
+            if (text.includes('lifeinvader')) location = ' near Lifeinvader';
+            if (text.includes('beach')) location = ' near the beach';
+            
+            // Build the features string
+            if (features.length > 0) {
+                if (features.length === 1) {
+                    result += ` with ${features[0]}`;
+                } else {
+                    result += ' with ';
+                    features.forEach((feature, index) => {
+                        if (index === features.length - 1) {
+                            result += ` and ${feature}`;
+                        } else if (index === 0) {
+                            result += feature;
+                        } else {
+                            result += `, ${feature}`;
+                        }
+                    });
+                }
+            }
+            
+            // Add location
+            result += location;
+            
+            // Add price/rent
+            if (isRenting) {
+                if (text.includes('per week')) {
+                    result += `. Rent: ${price} per week.`;
+                } else {
+                    result += `. Rent: ${price}.`;
+                }
+            } else if (isBuying) {
+                result += `. Budget: ${price}.`;
+            } else {
+                result += `. Price: ${price}.`;
+            }
+            
+            return capitalizeFirstLetter(result);
+        }
+
+        function processAutoAd(text) {
+            // This is a simplified version - in a real implementation, 
+            // you would have a comprehensive database of vehicle names
+            let result = '';
+            const isBuying = text.includes('buy') || text.includes('purchase');
+            const isSelling = text.includes('sell');
+            const isTrading = text.includes('trade') || text.includes('exchange');
+            const isRenting = text.includes('rent');
+            
+            // Extract vehicle name
+            let vehicleName = extractVehicleName(text);
+            
+            // Extract price/budget
+            const priceMatch = text.match(/(\d+(?:\.\d+)?)\s*(?:mil|million|m|k|thousand)/i);
+            let price = priceMatch ? `$${priceMatch[1]} Million` : 'Negotiable';
+            
+            // Start building the ad
+            if (isRenting) {
+                if (text.includes('renting out')) {
+                    result = 'Renting out ';
+                } else {
+                    result = 'Renting ';
+                }
+            } else if (isBuying) {
+                result = 'Buying ';
+            } else if (isSelling && isTrading) {
+                result = 'Selling or trading ';
+            } else if (isSelling) {
+                result = 'Selling ';
+            } else if (isTrading) {
+                result = 'Trading ';
+            } else {
+                result = 'Selling ';
+            }
+            
+            // Add vehicle name
+            if (vehicleName) {
+                result += `"${vehicleName}"`;
+            } else {
+                if (text.includes('car')) {
+                    result += 'a car';
+                } else if (text.includes('motorcycle') || text.includes('bike')) {
+                    result += 'a motorcycle';
+                } else if (text.includes('boat')) {
+                    result += 'a boat';
+                } else if (text.includes('helicopter')) {
+                    result += 'a helicopter';
+                } else if (text.includes('plane')) {
+                    result += 'a plane';
+                } else {
+                    result += 'a vehicle';
+                }
+            }
+            
+            // Add features
+            const features = [];
+            if (text.includes('full config') || text.includes('max tuning') || text.includes('fully upgraded')) {
+                features.push('full configuration');
+            } else if (text.includes('partial config') || text.includes('nearly max')) {
+                features.push('partial configuration');
+            }
+            
+            if (text.includes('visual') || text.includes('body upgrade') || text.includes('body kit')) {
+                features.push('visual upgrades');
+            }
+            
+            if (text.includes('luminous') || text.includes('unique wheel')) {
+                features.push('luminous wheels');
+            }
+            
+            if (text.includes('insurance')) {
+                features.push('insurance');
+            }
+            
+            if (text.includes('turbo')) {
+                features.push('turbo kit');
+            }
+            
+            if (text.includes('drift')) {
+                features.push('drift kit');
+            }
+            
+            // Build the features string
+            if (features.length > 0) {
+                result += ' with ';
+                features.forEach((feature, index) => {
+                    if (index === features.length - 1) {
+                        result += feature;
+                    } else {
+                        result += `${feature}, `;
+                    }
+                });
+            }
+            
+            // Add price/rent/budget
+            if (isRenting) {
+                result += `. Rent: ${price}.`;
+            } else if (isBuying) {
+                result += `. Budget: ${price}.`;
+            } else if (isTrading && !isSelling) {
+                // For pure trading ads, check if there's a target vehicle
+                const targetVehicle = extractTargetVehicle(text);
+                if (targetVehicle) {
+                    result += ` for "${targetVehicle}".`;
+                } else {
+                    result += `.`;
+                }
+            } else {
+                result += `. Price: ${price}.`;
+            }
+            
+            return capitalizeFirstLetter(result);
+        }
+
+        function processBusinessAd(text) {
+            let result = '';
+            const isBuying = text.includes('buy') || text.includes('purchase');
+            const isSelling = text.includes('sell');
+            const isTrading = text.includes('trade');
+            
+            // Extract business type
+            let businessType = extractBusinessType(text);
+            
+            // Extract business number if exists
+            const numberMatch = text.match(/(?:№|no|number|#)\s*(\d+)/i);
+            const businessNumber = numberMatch ? numberMatch[1] : null;
+            
+            // Extract price/budget
+            const priceMatch = text.match(/(\d+(?:\.\d+)?)\s*(?:mil|million|m)/i);
+            let price = priceMatch ? `$${priceMatch[1]} Million` : 'Negotiable';
+            
+            // Start building the ad
+            if (isBuying) {
+                result = 'Buying ';
+            } else if (isSelling && isTrading) {
+                result = 'Selling or trading ';
+            } else if (isSelling) {
+                result = 'Selling ';
+            } else if (isTrading) {
+                result = 'Trading ';
+            } else {
+                result = 'Selling ';
+            }
+            
+            // Add business type and number
+            if (businessType) {
+                if (businessNumber) {
+                    result += `${businessType} №${businessNumber}`;
+                } else {
+                    result += `${businessType} business`;
+                }
+            } else {
+                if (text.includes('personal business') || text.includes('private business')) {
+                    result += 'private business';
+                } else if (text.includes('family business')) {
+                    result += 'family business';
+                } else {
+                    result += 'a business';
+                }
+            }
+            
+            // Add location if specified
+            if (text.includes('city')) result += ' in the city';
+            if (text.includes('paleto')) result += ' near Paleto Bay';
+            
+            // Add price/budget
+            if (isBuying) {
+                result += `. Budget: ${price}.`;
+            } else {
+                result += `. Price: ${price}.`;
+            }
+            
+            return capitalizeFirstLetter(result);
+        }
+
+        function processWorkAd(text) {
+            let result = '';
+            const isHiring = text.includes('hire') || text.includes('hiring');
+            const isLookingForWork = text.includes('looking for work') || 
+                                   text.includes('need work') || 
+                                   text.includes('job seeking');
+            
+            // Extract job type
+            let jobType = extractJobType(text);
+            
+            // Extract location if specified
+            let location = '';
+            if (text.includes('construction site')) {
+                const siteMatch = text.match(/construction site\s*(?:№|no|number|#)\s*(\d+)/i);
+                if (siteMatch) {
+                    const siteNum = siteMatch[1];
+                    if (siteNum === '1') location = ' at construction site №1 on Vespucci Boulevard';
+                    else if (siteNum === '2') location = ' at construction site №2 on Calais Avenue';
+                    else if (siteNum === '3') location = ' at construction site №3 in Pillbox Hill';
+                    else location = ` at construction site №${siteNum}`;
+                } else {
+                    location = ' at a construction site';
+                }
+            } else if (text.includes('solar panel')) {
+                location = ' for solar panel plantations';
+            } else if (text.includes('fire station') || text.includes('firefighter')) {
+                location = ' at Fire Station';
+            } else if (text.includes('fib')) {
+                location = ' at FIB';
+            } else if (text.includes('beach market')) {
+                location = ' at the beach market';
+            } else if (text.includes('tv station')) {
+                location = ' at TV station';
+            }
+            
+            // Extract salary/bonus if specified
+            let compensation = '';
+            const salaryMatch = text.match(/(\d+(?:\.\d+)?)\s*(?:k|thousand)/i);
+            if (salaryMatch) {
+                compensation = ` Salary: $${salaryMatch[1]}.000.`;
+            } else if (text.includes('bonus')) {
+                const bonusMatch = text.match(/(\d+(?:\.\d+)?)\s*(?:k|thousand)/i);
+                if (bonusMatch) {
+                    compensation = ` Awarding $${bonusMatch[1]}.000 bonus.`;
+                } else {
+                    compensation = ' Awarding bonuses.';
+                }
+            } else if (text.includes('paying well')) {
+                compensation = ' Paying well.';
+            } else {
+                compensation = ' Salary: Negotiable.';
+            }
+            
+            // Build the ad
+            if (isHiring) {
+                if (jobType) {
+                    result = `Hiring ${jobType}${location}.${compensation}`;
+                } else {
+                    result = `Hiring workers${location}.${compensation}`;
+                }
+            } else if (isLookingForWork) {
+                if (jobType) {
+                    result = `${capitalizeFirstLetter(jobType)} looking for work.`;
+                } else {
+                    result = 'Looking for work.';
+                }
+            } else {
+                // Default to hiring
+                result = `Hiring workers${location}.${compensation}`;
+            }
+            
+            return capitalizeFirstLetter(result);
+        }
+
+        function processDatingAd(text) {
+            let result = 'Looking for ';
+            
+            // Extract person name if specified
+            const nameMatch = text.match(/looking for\s+([a-z]+\s+[a-z]+)/i);
+            if (nameMatch) {
+                const name = nameMatch[1];
+                // Check if name is in database (simplified)
+                if (isNameInDatabase(name)) {
+                    result += `${capitalizeName(name)}.`;
+                } else {
+                    return "Person not found in database. (Person must be in the GRAND RP mail)";
+                }
+            } else if (text.includes('girlfriend')) {
+                result += 'a girlfriend.';
+            } else if (text.includes('boyfriend')) {
+                result += 'a boyfriend.';
+            } else if (text.includes('wife')) {
+                result += 'a wife.';
+            } else if (text.includes('husband')) {
+                result += 'a husband.';
+            } else if (text.includes('family') || text.includes('fam')) {
+                if (text.includes('member')) {
+                    result += 'family members.';
+                } else {
+                    result += 'a family.';
+                }
+            } else if (text.includes('friend')) {
+                result += 'a friend.';
+            } else if (text.includes('casino poker')) {
+                result += 'Casino poker players.';
+            } else {
+                result += 'someone.';
+            }
+            
+            return capitalizeFirstLetter(result);
+        }
+
+        function processServicesAd(text) {
+            // For services, we would typically use predefined templates
+            // This is a simplified version
+            return "Service ad template would go here. (Contact LI to create a template)";
+        }
+
+        function processDiscountsAd(text) {
+            // For discounts, we would typically use predefined templates
+            // This is a simplified version
+            return "Discount ad template would go here. (Contact LI to create a template)";
+        }
+
+        function processOtherAd(text) {
+            let result = '';
+            const isBuying = text.includes('buy') || text.includes('purchase');
+            const isSelling = text.includes('sell');
+            const isTrading = text.includes('trade');
+            const isLookingFor = text.includes('looking for');
+            
+            // Extract item information
+            let item = extractItem(text);
+            
+            // Extract price/budget if specified
+            let priceInfo = '';
+            const priceMatch = text.match(/(\d+(?:\.\d+)?)\s*(?:mil|million|m|k|thousand)/i);
+            if (priceMatch) {
+                const amount = priceMatch[1];
+                if (text.includes('mil') || text.includes('million') || text.includes('m')) {
+                    priceInfo = `$${amount} Million`;
+                } else if (text.includes('k') || text.includes('thousand')) {
+                    priceInfo = `$${amount}.000`;
+                } else {
+                    priceInfo = `$${amount}`;
+                }
+            } else {
+                priceInfo = 'Negotiable';
+            }
+            
+            // Build the ad
+            if (isLookingFor) {
+                result = `Looking for ${item}.`;
+            } else if (isBuying) {
+                result = `Buying ${item}. Budget: ${priceInfo}.`;
+            } else if (isSelling && isTrading) {
+                result = `Selling or trading ${item}. Price: ${priceInfo}.`;
+            } else if (isSelling) {
+                result = `Selling ${item}. Price: ${priceInfo}.`;
+            } else if (isTrading) {
+                result = `Trading ${item}.`;
+            } else {
+                result = `Selling ${item}. Price: ${priceInfo}.`;
+            }
+            
+            return capitalizeFirstLetter(result);
+        }
+
+        // Helper functions
+        function extractVehicleName(text) {
+            // This is a simplified version - in reality, you'd have a comprehensive list
+            const vehicleMatches = [
+                { pattern: /supra/i, name: 'Karin Supra A80' },
+                { pattern: /chiron/i, name: 'Truffade Chiron' },
+                { pattern: /corvette/i, name: 'Declasse Corvette C7' },
+                { pattern: /pista/i, name: 'Grotti Pista (F488)' },
+                { pattern: /r34/i, name: 'Annis Skyline GT-R (R34)' },
+                { pattern: /m3/i, name: 'Ubermacht M3 (G80)' },
+                { pattern: /m5/i, name: 'Ubermacht M5 (E34)' },
+                { pattern: /c63/i, name: 'Benefactor-AMG C63 Coupe (W205)' },
+                { pattern: /toros/i, name: 'Toros' },
+                { pattern: /tundra/i, name: 'Karin Tundra 2021' },
+                { pattern: /seashark/i, name: 'SeaShark' },
+                { pattern: /swift deluxe/i, name: 'Swift Deluxe' }
+            ];
+            
+            for (const match of vehicleMatches) {
+                if (match.pattern.test(text)) {
+                    return match.name;
+                }
+            }
+            
+            return null;
+        }
+
+        function extractTargetVehicle(text) {
+            // Extract the vehicle being traded for
+            const tradeMatch = text.match(/for\s+([^.,]+)/i);
+            if (tradeMatch) {
+                return extractVehicleName(tradeMatch[1]) || capitalizeFirstLetter(tradeMatch[1].trim());
+            }
+            return null;
+        }
+
+        function extractBusinessType(text) {
+            const businessTypes = [
+                'Ammunition Store', 'Bar', 'Car wash', 'Chip tuning', 'Clothing shop',
+                'Cowshed', 'Electric station', 'Farm', 'Flower shop', 'Freight train',
+                'Gas station', 'Hair salon', 'Jewelry store', 'Oil Well', 'Parking',
+                'Plantation', 'Car sharing', 'State object', 'Service station',
+                '24/7 Store', 'Tattoo studio', 'Taxi company', 'ATM', 'Juice shop',
+                'Burger shop', 'Warehouse'
+            ];
+            
+            for (const type of businessTypes) {
+                if (text.includes(type.toLowerCase())) {
+                    return type;
+                }
+            }
+            
+            // Check for aliases
+            if (text.includes('gun store') || text.includes('weapon store')) return 'Ammunition Store';
+            if (text.includes('strip club')) return 'Bar';
+            if (text.includes('barber')) return 'Hair salon';
+            if (text.includes('drug lab')) return 'Burger shop';
+            if (text.includes('charging station')) return 'Electric station';
+            
+            return null;
+        }
+
+        function extractJobType(text) {
+            const jobTypes = [
+                'locksmith', 'electrician', 'gardener', 'surveyor', 'driver',
+                'trucker', 'lawyer', 'DJ', 'photographer', 'bodyguard',
+                'professional dancer', 'personal driver', 'assistant', 'professional singer',
+                'firefighter', 'worker'
+            ];
+            
+            for (const job of jobTypes) {
+                if (text.includes(job)) {
+                    // Handle special cases
+                    if (job === 'gardener') return 'farmer';
+                    if (job === 'surveyor') return 'oilman';
+                    if (job === 'professional dancer' && text.includes('exotic')) return 'professional dancer';
+                    return job;
+                }
+            }
+            
+            return null;
+        }
+
+        function extractItem(text) {
+            // This is a simplified version - in reality, you'd have a comprehensive list
+            const itemMatches = [
+                { pattern: /abibas pants/i, name: 'Abibas pants' },
+                { pattern: /lui vi pants/i, name: 'Lui Vi pants' },
+                { pattern: /desert scarf mask/i, name: 'desert scarf mask' },
+                { pattern: /seeds/i, name: 'seeds' },
+                { pattern: /tuning parts/i, name: 'tuning parts' },
+                { pattern: /engine tuning/i, name: 'engine tuning' },
+                { pattern: /transmission tuning/i, name: 'transmission tuning' },
+                { pattern: /suspension tuning/i, name: 'suspension tuning' },
+                { pattern: /tires tuning/i, name: 'tires tuning' },
+                { pattern: /brakes tuning/i, name: 'brakes tuning' },
+                { pattern: /container/i, name: 'containers' },
+                { pattern: /ticket/i, name: 'tickets' },
+                { pattern: /juice/i, name: 'juices' },
+                { pattern: /fruit/i, name: 'fruits' },
+                { pattern: /vegetable/i, name: 'vegetables' }
+            ];
+            
+            for (const match of itemMatches) {
+                if (match.pattern.test(text)) {
+                    return match.name;
+                }
+            }
+            
+            // Check custom items
+            for (const item of customItems) {
+                if (text.includes(item.toLowerCase())) {
+                    return item;
+                }
+            }
+            
+            return 'items';
+        }
+
+        function isNameInDatabase(name) {
+            // This is a simplified check - in reality, you'd query a database
+            const knownNames = [
+                'anindo winslow', 'zandre mortez', 'elite alphax', 
+                'lucio escobar', 'sozo jinx', 'kaizer hami'
+            ];
+            
+            return knownNames.includes(name.toLowerCase());
+        }
+
+        function capitalizeName(name) {
+            return name.split(' ').map(part => 
+                part.charAt(0).toUpperCase() + part.slice(1)
+            ).join(' ');
+        }
+
+        function capitalizeFirstLetter(text) {
+            return text.charAt(0).toUpperCase() + text.slice(1);
+        }
+    </script>
 </body>
 </html>
